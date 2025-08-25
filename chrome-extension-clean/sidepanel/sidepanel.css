@@ -177,8 +177,8 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 8px;
-  padding: 8px 0;
+  margin-bottom: 4px;
+  padding: 4px 0;
   border-bottom: 1px solid #e5e5e5;
 }
 
@@ -212,7 +212,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .search-container {

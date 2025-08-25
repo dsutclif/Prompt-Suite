@@ -387,10 +387,17 @@ class PromptLibrarySidePanel {
     };
 
     Object.entries(logoMappings).forEach(([llm, filename]) => {
-      const icon = document.querySelector(`[data-logo="${llm}"] img`);
-      if (icon) {
-        icon.src = chrome.runtime.getURL(`icons/llm-logos/${filename}`);
+      // Set up modal icons
+      const modalIcon = document.querySelector(`[data-logo="${llm}"] img`);
+      if (modalIcon) {
+        modalIcon.src = chrome.runtime.getURL(`icons/llm-logos/${filename}`);
       }
+      
+      // Set up quick link icons - find all images with matching data-logo attribute
+      const quickLinkIcons = document.querySelectorAll(`img[data-logo="${llm}"]`);
+      quickLinkIcons.forEach(icon => {
+        icon.src = chrome.runtime.getURL(`icons/llm-logos/${filename}`);
+      });
     });
   }
 
