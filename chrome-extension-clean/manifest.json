@@ -19,6 +19,7 @@
     "https://chatgpt.com/*", 
     "https://gemini.google.com/*",
     "https://perplexity.ai/*",
+    "https://www.perplexity.ai/*",
     "https://grok.com/*",
     "https://x.ai/*"
   ],
@@ -58,6 +59,7 @@
         "*://chatgpt.com/*",
         "*://gemini.google.com/*",
         "*://perplexity.ai/*",
+        "*://www.perplexity.ai/*",
         "*://grok.com/*",
         "*://x.ai/*"
       ]
