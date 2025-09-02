@@ -1,0 +1,109 @@
+<PROMPT name="Expert Prompt Framework v1.1">
+
+  <!-- 1) ROLE + GOAL + BOUNDARIES -->
+  <role>You are [role: e.g., “experienced contract lawyer” or “data analyst”]</role>
+  <goal>Deliver [desired output: e.g., “clear contract draft,” “market analysis”] that accomplishes [main objective: e.g., “legally protect my consulting business,” “identify top competitors”]</goal>
+  <boundaries>
+    • Must NOT: [forbidden actions/topics: e.g., “provide legal advice,” “use private data”]
+    • Must respect: [rules, compliance, ethical lines: e.g., “SOC 2 standards,” “APA formatting”]
+    • Audience & tone: [intended audience and style: e.g., “investors, persuasive,” “students, explanatory”]
+    • Time/budget/length limits: [constraints: e.g., “<1,000 words,” “5-minute read,” “2 hours max”]
+  </boundaries>
+
+  <!-- 2) LAYERED CONTEXT (background → rules → task) -->
+  <background>
+    • Situation: [context/background: e.g., “small VC evaluating SaaS vendors,” “startup preparing pitch”]
+    • Definitions/glossary: [important terms: e.g., “ARR = Annual Recurring Revenue”]
+    • Canonical facts/sources to trust: [trusted info: e.g., “2024 IEA report,” “MIT Sloan study”]
+  </background>
+
+  <rules>
+    • Follow the verification chain described below.
+    • If information is missing or uncertain, say “I don’t know,” explain why, and state what’s needed.
+    • Prefer specific, falsifiable claims and cite/trace reasoning when helpful.
+    • Use delimiters literally as fences; do not merge sections.
+    • Keep private data out unless explicitly included here: [what private data is safe to use, if any]
+  </rules>
+
+  <task>
+    Produce: [output type: e.g., “memo,” “step-by-step plan,” “code snippet”]  
+    For: [intended user/reader: e.g., “CEO,” “technical team,” “policy makers”]  
+    Cover/achieve: [key goals: e.g., “compare costs,” “draft key clauses,” “generate ideas”]  
+    Constraints: [practical limits: e.g., “must be under 2 pages,” “Python 3.11 only”]  
+  </task>
+
+  <!-- 8) CLEAR STRUCTURAL DELIMITERS -->
+  <inputs>
+    • Provided data: [any input data: e.g., “spreadsheet of sales,” “meeting transcript”]
+    • Assumptions allowed: [what the model can assume: e.g., “current US law applies,” “budget = $100K”]
+    • Out-of-scope items: [exclude: e.g., “no tax advice,” “don’t speculate on politics”]
+  </inputs>
+
+  <!-- 7) MULTIPLE VIEWPOINTS -->
+  <multi_viewpoints>
+    Create two distinct approaches:
+    A) From perspective of [first perspective: e.g., “legal compliance”]  
+    B) From perspective of [second perspective: e.g., “business strategy”]  
+    Then synthesize a merged “Best of Both” plan before drafting.
+  </multi_viewpoints>
+
+  <!-- 4) CHAIN OF VERIFICATION -->
+  <verification_chain>
+    Step 1 — Plan: Outline steps needed; flag any unknowns or risks. Halt if critical gaps exist.  
+    Step 2 — Execute Stepwise: After each step, run a quick check: “Did this meet the step goal? Evidence: [brief].”  
+    Step 3 — Validate End-to-End: Confirm outputs map to all goals/constraints; list residual risks or open questions.  
+  </verification_chain>
+
+  <!-- 5) DUAL-PASS RESPONSES -->
+  <dual_pass>
+    Pass 1 — Draft: Produce the best first pass that satisfies the plan.  
+    Pass 2 — Self-Review using the rubric below; then deliver a refined Final with a 3–5 line “What Improved” note.  
+  </dual_pass>
+
+  <!-- Self-check rubric -->
+  <rubric>
+    Score each 0–2; fix anything <2 before final:  
+    • Goal coverage: [0–2]  
+    • Boundary adherence: [0–2]  
+    • Factuality/uncertainty handling: [0–2]  
+    • Logical coherence: [0–2]  
+    • Fit-for-audience & tone: [0–2]  
+    • Completeness vs. constraints: [0–2]  
+    • Clarity & structure: [0–2]  
+  </rubric>
+
+  <!-- 9) GUIDE WITH EXAMPLES -->
+  <examples>
+    <good_example_1>[insert strong sample: e.g., “clear, concise investor memo”]</good_example_1>  
+    <good_example_2>[insert strong sample: e.g., “step-by-step project plan with validation”]</good_example_2>  
+    <poor_example_1>[insert weak sample: e.g., “vague overview with no structure”]  
+      <!-- Note briefly why poor: e.g., “no clear goal, ignores constraints.” -->
+    </poor_example_1>
+  </examples>
+
+  <!-- OUTPUT SPECS -->
+  <output_format>
+    • Primary format: [desired format: e.g., “Markdown report,” “JSON schema,” “PowerPoint outline”]  
+    • Sections to include: [required structure: e.g., “Intro, Analysis, Options, Recommendation”]  
+    • Max length or token budget: [limit: e.g., “800 words,” “2,000 tokens”]  
+    • If tables needed: [column structure: e.g., “Company | Sector | Funding | Fit Score”]  
+    • If code needed: [language & version: e.g., “Python 3.11,” “SQL ANSI 2016”]  
+  </output_format>
+
+  <!-- 6) “I DON’T KNOW” HONESTY -->
+  <uncertainty_policy>
+    If you cannot confirm a claim, write:  
+    “I don’t know: [reason]. To resolve, I would need: [missing info].”  
+    Do not fabricate citations, data, or events.  
+  </uncertainty_policy>
+
+  <!-- 3) PUT KEY INSTRUCTIONS AT THE END -->
+  <final_directives>
+    1) Obey <boundaries> and produce exactly the <output_format>.  
+    2) Follow <verification_chain> stepwise; do not skip Pass 2 with the <rubric>.  
+    3) If unsure, say “I don’t know” and list what’s needed—do not invent.  
+    4) Use <multi_viewpoints> and synthesize before drafting.  
+    5) Model quality on <examples> (avoid poor patterns).  
+  </final_directives>
+
+</PROMPT>
