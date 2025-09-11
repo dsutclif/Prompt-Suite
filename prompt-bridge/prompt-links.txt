@@ -7,6 +7,7 @@ https://dsutclif.github.io/PromptLibrary/index.html?id=blog-helper
 https://dsutclif.github.io/PromptLibrary/index.html?id=meeting-notes
 https://dsutclif.github.io/PromptLibrary/index.html?id=hello-world
 https://dsutclif.github.io/PromptLibrary/index.html?id=expert-prompt-framework-v1-1
+https://dsutclif.github.io/PromptLibrary/index.html?id=one-shot-pre-meeting-intelligence-prompt
 
 ## Development Links (Unpacked Extension)
 https://dsutclif.github.io/PromptLibrary/index-dev.html?id=email-writer
@@ -15,3 +16,4 @@ https://dsutclif.github.io/PromptLibrary/index-dev.html?id=blog-helper
 https://dsutclif.github.io/PromptLibrary/index-dev.html?id=meeting-notes
 https://dsutclif.github.io/PromptLibrary/index-dev.html?id=hello-world
 https://dsutclif.github.io/PromptLibrary/index-dev.html?id=expert-prompt-framework-v1-1
+https://dsutclif.github.io/PromptLibrary/index-dev.html?id=one-shot-pre-meeting-intelligence-prompt
