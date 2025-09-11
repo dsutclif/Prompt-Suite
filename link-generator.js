@@ -1,7 +1,7 @@
 // Link Generator for Prompt Bridge
 // This script helps generate import links for email prompts
 
-const BASE_URL = "https://dsutclif.github.io/PromptLibrary"; // Your GitHub Pages URL
+const BASE_URL = "https://dsutclif.github.io/PromptEasy"; // Your GitHub Pages URL
 
 function generateImportLink(title, body, useDevVersion = false) {
     const promptData = {
