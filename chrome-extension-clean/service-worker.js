@@ -193,7 +193,8 @@ function isSupportedLLM(url) {
     'claude.ai',
     'chatgpt.com',
     'gemini.google.com',
-    'perplexity.ai'
+    'perplexity.ai',
+    'grok.com'
   ];
   
   try {
@@ -211,7 +212,8 @@ async function handleLLMNavigation(message) {
       claude: 'https://claude.ai',
       chatgpt: 'https://chatgpt.com',
       gemini: 'https://gemini.google.com',
-      perplexity: 'https://www.perplexity.ai'
+      perplexity: 'https://www.perplexity.ai',
+      grok: 'https://grok.com'
     };
     
     const url = urls[message.llm];
@@ -338,7 +340,7 @@ async function executeScheduledPrompt(scheduleId) {
     // Get current tab
     const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const currentUrl = activeTab ? activeTab.url : '';
-    const supportedDomains = ['claude.ai', 'chatgpt.com', 'gemini.google.com', 'perplexity.ai'];
+    const supportedDomains = ['claude.ai', 'chatgpt.com', 'gemini.google.com', 'perplexity.ai', 'grok.com'];
     const isLLMPlatform = supportedDomains.some(domain => currentUrl.includes(domain));
     
     let targetTabId = activeTab?.id;
@@ -349,7 +351,8 @@ async function executeScheduledPrompt(scheduleId) {
         claude: 'https://claude.ai',
         chatgpt: 'https://chatgpt.com',
         gemini: 'https://gemini.google.com',
-        perplexity: 'https://www.perplexity.ai'
+        perplexity: 'https://www.perplexity.ai',
+        grok: 'https://grok.com'
       };
       
       const preferredLLM = data.settings?.goToLLM || 'chatgpt';

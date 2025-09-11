@@ -73,7 +73,8 @@ class PromptLibrarySidePanel {
       const isLLMSite = url.includes('claude.ai') || 
                         url.includes('chatgpt.com') || 
                         url.includes('gemini.google.com') || 
-                        url.includes('perplexity.ai');
+                        url.includes('perplexity.ai') ||
+                        url.includes('grok.com');
 
       console.log('Is LLM site:', isLLMSite);
 
@@ -211,7 +212,7 @@ class PromptLibrarySidePanel {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       const currentUrl = tab.url;
-      const supportedDomains = ['claude.ai', 'chatgpt.com', 'gemini.google.com', 'perplexity.ai'];
+      const supportedDomains = ['claude.ai', 'chatgpt.com', 'gemini.google.com', 'perplexity.ai', 'grok.com'];
       const isLLMPlatform = supportedDomains.some(domain => currentUrl.includes(domain));
       
       if (!isLLMPlatform && !this.libraryData.settings?.goToLLM) {
@@ -362,6 +363,17 @@ class PromptLibrarySidePanel {
         this.hideAllModals();
       }
     });
+
+    // LLM Quick Link handlers
+    document.querySelectorAll('.llm-quick-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = link.getAttribute('data-llm-url');
+        if (url) {
+          chrome.tabs.create({ url: url });
+        }
+      });
+    });
   }
 
   setupImageSources() {
@@ -370,14 +382,22 @@ class PromptLibrarySidePanel {
       claude: 'claude.png',
       chatgpt: 'chatgpt.png', 
       gemini: 'gemini.png',
-      perplexity: 'perplexity.png'
+      perplexity: 'perplexity.png',
+      grok: 'grok.png'
     };
 
     Object.entries(logoMappings).forEach(([llm, filename]) => {
-      const icon = document.querySelector(`[data-logo="${llm}"] img`);
-      if (icon) {
-        icon.src = chrome.runtime.getURL(`icons/llm-logos/${filename}`);
+      // Set up modal icons
+      const modalIcon = document.querySelector(`[data-logo="${llm}"] img`);
+      if (modalIcon) {
+        modalIcon.src = chrome.runtime.getURL(`icons/llm-logos/${filename}`);
       }
+      
+      // Set up quick link icons - find all images with matching data-logo attribute
+      const quickLinkIcons = document.querySelectorAll(`img[data-logo="${llm}"]`);
+      quickLinkIcons.forEach(icon => {
+        icon.src = chrome.runtime.getURL(`icons/llm-logos/${filename}`);
+      });
     });
   }
 
@@ -1389,7 +1409,8 @@ class PromptLibrarySidePanel {
         claude: 'https://claude.ai',
         chatgpt: 'https://chatgpt.com',
         gemini: 'https://gemini.google.com',
-        perplexity: 'https://www.perplexity.ai'
+        perplexity: 'https://www.perplexity.ai',
+        grok: 'https://grok.com'
       };
       
       const url = urls[this.selectedLLM];
