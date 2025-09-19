@@ -1,4 +1,4 @@
-# Prompt Library Chrome Extension
+# Prompt Suite Chrome Extension
 
 ## Overview
 A Chrome MV3 extension designed to streamline prompt management and insertion into Large Language Model (LLM) platforms. It offers a native side panel for organizing a nested library of prompts locally, featuring a minimalist Apple-style interface with folder organization, drag-and-drop functionality, and smart context-aware opening logic. The project aims to enhance user interaction with AI platforms by providing an efficient, integrated tool for prompt management, thereby improving productivity and consistency in LLM interactions.
