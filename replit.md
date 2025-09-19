@@ -21,8 +21,8 @@ Development workflow: Always update chrome-extension-clean.zip with every code c
    ```
 
 2. **Generate Links:** Provide both versions:
-   - **Dev:** `https://dsutclif.github.io/PromptEasy/index-dev.html?id=[kebab-case-id]`
-   - **Prod:** `https://dsutclif.github.io/PromptEasy/index.html?id=[kebab-case-id]`
+   - **Dev:** `https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=[kebab-case-id]`
+   - **Prod:** `https://dsutclif.github.io/Prompt-Suite/index.html?id=[kebab-case-id]`
 
 3. **Update Link Registry:** Add new URLs to `prompt-bridge/prompt-links.txt`
 
@@ -33,7 +33,7 @@ Development workflow: Always update chrome-extension-clean.zip with every code c
 - Use as both filename and URL parameter
 
 ### GitHub Repository Integration:
-- Repository: `dsutclif/PromptEasy` 
+- Repository: `dsutclif/Prompt-Suite` 
 - GitHub Pages automatically serves new prompts after push
 - Files created in this Replit sync to GitHub when user pushes via Git tab
 

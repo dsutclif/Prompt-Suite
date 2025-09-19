@@ -6,7 +6,7 @@
  * 2. Use generateImportLink() to create links for your prompts
  */
 
-const BASE_URL = 'https://dsutclif.github.io/PromptEasy/';
+const BASE_URL = 'https://dsutclif.github.io/Prompt-Suite/';
 
 /**
  * Generate an import link for a prompt
