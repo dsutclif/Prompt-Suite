@@ -4,7 +4,7 @@
   "version": "1.0.4",
   "description": "Smart prompt manager for AI chats. Organize, schedule & insert prompts into ChatGPT, Claude, Gemini & Perplexity with folders.",
 
-  "permissions": ["storage", "activeTab", "scripting", "sidePanel", "tabs", "alarms"],
+  "permissions": ["storage", "activeTab", "scripting", "sidePanel", "tabs"],
   
   "externally_connectable": {
     "matches": [
@@ -18,10 +18,7 @@
     "https://claude.ai/*",
     "https://chatgpt.com/*", 
     "https://gemini.google.com/*",
-    "https://perplexity.ai/*",
-    "https://www.perplexity.ai/*",
-    "https://grok.com/*",
-    "https://x.ai/*"
+    "https://perplexity.ai/*"
   ],
 
   "background": {
@@ -51,17 +48,13 @@
         "icons/llm-logos/claude.png",
         "icons/llm-logos/chatgpt.png",
         "icons/llm-logos/gemini.png",
-        "icons/llm-logos/perplexity.png",
-        "icons/llm-logos/grok.png"
+        "icons/llm-logos/perplexity.png"
       ],
       "matches": [
         "*://claude.ai/*",
         "*://chatgpt.com/*",
         "*://gemini.google.com/*",
-        "*://perplexity.ai/*",
-        "*://www.perplexity.ai/*",
-        "*://grok.com/*",
-        "*://x.ai/*"
+        "*://perplexity.ai/*"
       ]
     }
   ]
