@@ -455,6 +455,121 @@ window.promptLibraryAdapters = {
 
       return false;
     }
+  },
+  
+  grok: {
+    name: 'Grok',
+    selectors: {
+      composer: [
+        'textarea[placeholder*="Ask"]',
+        'textarea[placeholder*="Message"]',
+        'div[contenteditable="true"][role="textbox"]',
+        'textarea[aria-label*="Message"]',
+        'textarea[aria-label*="Chat"]',
+        '.input-container textarea',
+        'div[contenteditable="true"]:not([data-message])',
+        'textarea:not([readonly]):not([disabled])',
+        '[data-testid*="input"]',
+        '[data-testid*="message"]'
+      ]
+    },
+    
+    findComposer() {
+      for (const selector of this.selectors.composer) {
+        const elements = document.querySelectorAll(selector);
+        for (const element of elements) {
+          if (isVisible(element) && isEnabled(element)) {
+            return element;
+          }
+        }
+      }
+      return null;
+    },
+    
+    async insert(text) {
+      const composer = this.findComposer();
+      if (!composer) return false;
+      
+      try {
+        composer.focus();
+        
+        if (composer.tagName === 'TEXTAREA') {
+          composer.value = text;
+          composer.setSelectionRange(text.length, text.length);
+        } else {
+          composer.textContent = text;
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(composer);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+        
+        triggerEvents(composer);
+        composer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return true;
+      } catch (error) {
+        console.error('Failed to insert text in Grok:', error);
+        return false;
+      }
+    },
+    
+    async readCurrentInput() {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      const composer = this.findComposer();
+      if (!composer) {
+        throw new Error('Grok composer not found');
+      }
+      
+      let text = '';
+      if (composer.tagName === 'TEXTAREA') {
+        text = composer.value || '';
+      } else {
+        text = composer.textContent || composer.innerText || '';
+      }
+      
+      return text;
+    },
+    
+    submitPrompt() {
+      const submitSelectors = [
+        'button[aria-label*="Send"]',
+        'button[aria-label*="Submit"]',
+        'button[type="submit"]:not([disabled])',
+        'button:has(svg)',
+        'button.send-button',
+        '.send-btn',
+        '[data-testid*="send"]',
+        '[data-testid*="submit"]'
+      ];
+
+      for (const selector of submitSelectors) {
+        const buttons = document.querySelectorAll(selector);
+        for (const button of buttons) {
+          if (isVisible(button) && !button.disabled) {
+            button.click();
+            return true;
+          }
+        }
+      }
+
+      const composer = this.findComposer();
+      if (composer) {
+        const enterEvent = new KeyboardEvent('keydown', {
+          key: 'Enter',
+          code: 'Enter',
+          keyCode: 13,
+          which: 13,
+          bubbles: true
+        });
+        composer.dispatchEvent(enterEvent);
+        return true;
+      }
+
+      return false;
+    }
   }
 };
 
@@ -470,6 +585,8 @@ function getAdapter() {
     return window.promptLibraryAdapters.gemini;
   } else if (hostname === 'www.perplexity.ai' || hostname === 'perplexity.ai') {
     return window.promptLibraryAdapters.perplexity;
+  } else if (hostname === 'grok.com' || hostname === 'x.ai') {
+    return window.promptLibraryAdapters.grok;
   }
   
   return null;

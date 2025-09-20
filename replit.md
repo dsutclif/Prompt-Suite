@@ -1,4 +1,4 @@
-# Prompt Suite Chrome Extension
+# Prompt Library Chrome Extension
 
 ## Overview
 A Chrome MV3 extension designed to streamline prompt management and insertion into Large Language Model (LLM) platforms. It offers a native side panel for organizing a nested library of prompts locally, featuring a minimalist Apple-style interface with folder organization, drag-and-drop functionality, and smart context-aware opening logic. The project aims to enhance user interaction with AI platforms by providing an efficient, integrated tool for prompt management, thereby improving productivity and consistency in LLM interactions.
@@ -21,8 +21,8 @@ Development workflow: Always update chrome-extension-clean.zip with every code c
    ```
 
 2. **Generate Links:** Provide both versions:
-   - **Dev:** `https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=[kebab-case-id]`
-   - **Prod:** `https://dsutclif.github.io/Prompt-Suite/index.html?id=[kebab-case-id]`
+   - **Dev:** `https://dsutclif.github.io/PromptEasy/index-dev.html?id=[kebab-case-id]`
+   - **Prod:** `https://dsutclif.github.io/PromptEasy/index.html?id=[kebab-case-id]`
 
 3. **Update Link Registry:** Add new URLs to `prompt-bridge/prompt-links.txt`
 
@@ -33,7 +33,7 @@ Development workflow: Always update chrome-extension-clean.zip with every code c
 - Use as both filename and URL parameter
 
 ### GitHub Repository Integration:
-- Repository: `dsutclif/Prompt-Suite` 
+- Repository: `dsutclif/PromptEasy` 
 - GitHub Pages automatically serves new prompts after push
 - Files created in this Replit sync to GitHub when user pushes via Git tab
 

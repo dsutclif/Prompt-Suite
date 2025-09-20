@@ -1,7 +1,7 @@
 // Link Generator for Prompt Bridge
 // This script helps generate import links for email prompts
 
-const BASE_URL = "https://dsutclif.github.io/Prompt-Suite"; // Your GitHub Pages URL
+const BASE_URL = "https://dsutclif.github.io/PromptEasy"; // Your GitHub Pages URL
 
 function generateImportLink(title, body, useDevVersion = false) {
     const promptData = {
@@ -74,13 +74,13 @@ function generateEmailHtml(title, body, useDevVersion = false) {
     
     <p>
         <a href="${importUrl}" class="import-button">
-            📝 Add to Prompt Suite Extension
+            📝 Add to Prompt Library Extension
         </a>
     </p>
     
     <p><small>
         Click the button above to add this prompt to your browser extension library. 
-        Make sure you have the Prompt Suite extension installed and enabled.
+        Make sure you have the Prompt Library extension installed and enabled.
     </small></p>
 </body>
 </html>`;
