@@ -1,5 +1,29 @@
 // Service worker for Prompt Library Extension
 
+// Simple storage wrapper for Chrome extension
+class Storage {
+  async get(keys) {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(keys, resolve);
+    });
+  }
+  
+  async set(data) {
+    return new Promise((resolve) => {
+      chrome.storage.local.set(data, resolve);
+    });
+  }
+}
+
+// Helper function to send messages to tabs
+async function sendMessageToTab(tabId, message) {
+  try {
+    await chrome.tabs.sendMessage(tabId, message);
+  } catch (error) {
+    console.warn('Could not send message to tab:', tabId, error.message);
+  }
+}
+
 class ServiceWorker {
   constructor() {
     this.storage = new Storage();
@@ -104,7 +128,13 @@ class ServiceWorker {
   }
 
   async togglePanel(tabId) {
-    await sendMessageToTab(tabId, { type: 'TOGGLE_PANEL' });
+    try {
+      // Open the side panel for this tab
+      await chrome.sidePanel.open({ tabId });
+      console.log('Side panel opened for tab:', tabId);
+    } catch (error) {
+      console.error('Error opening side panel:', error);
+    }
   }
 
   async usePrompt(tabId, promptId) {
