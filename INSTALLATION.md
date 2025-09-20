@@ -34,7 +34,7 @@ This guide will walk you through installing the Prompt Suite Chrome extension in
 ### Grant Permissions
 
 The extension will request permissions for:
-- **Storage**: To save your Prompt Suite data locally
+- **Storage**: To save your prompt data locally
 - **Active Tab**: To detect which LLM platform you're using
 - **Scripting**: To inject the panel and insert prompts
 - **Tabs**: To open your preferred LLM when needed
@@ -56,7 +56,7 @@ The extension will request permissions for:
 
 The extension registers these global shortcuts:
 
-- **Alt+P**: Toggle the Prompt Suite panel
+- **Alt+P**: Toggle the prompt panel
 - **Alt+Shift+P**: Use your most recent prompt
 - **Ctrl+Shift+P**: Save current chat input as a new prompt
 

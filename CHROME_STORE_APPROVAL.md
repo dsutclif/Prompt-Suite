@@ -64,4 +64,4 @@ For Chrome Web Store reviewers:
 - Extension purpose: Organize and insert text prompts into 4 specific AI chat platforms
 - Data handling: 100% local storage, no external communication
 - Permissions justified: Each permission has a specific, necessary function
-- Single purpose: Prompt Suite management and insertion
+- Single purpose: Prompt library management and insertion
