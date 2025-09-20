@@ -1,4 +1,4 @@
-# Prompt Library Chrome Extension
+# Prompt Suite Chrome Extension
 
 A Chrome MV3 extension that provides a native side panel for managing and inserting prompts into AI chat platforms.
 

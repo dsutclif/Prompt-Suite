@@ -1,6 +1,6 @@
 # Chrome Extension Installation Guide
 
-This guide will walk you through installing the Prompt Library Chrome extension in developer mode.
+This guide will walk you through installing the Prompt Suite Chrome extension in developer mode.
 
 ## Prerequisites
 
@@ -25,8 +25,8 @@ This guide will walk you through installing the Prompt Library Chrome extension 
 
 ### 3. Verify Installation
 
-1. Look for the Prompt Library icon (purple "P") in your Chrome toolbar
-2. If you don't see it, click the puzzle piece icon (Extensions menu) and pin the Prompt Library extension
+1. Look for the Prompt Suite icon (purple "P") in your Chrome toolbar
+2. If you don't see it, click the puzzle piece icon (Extensions menu) and pin the Prompt Suite extension
 3. Try clicking the icon or pressing `Alt+P` to test the panel
 
 ## Post-Installation Setup
@@ -63,7 +63,7 @@ The extension registers these global shortcuts:
 ### Customizing Shortcuts
 
 1. Go to `chrome://extensions/shortcuts`
-2. Find "Prompt Library Overlay" in the list
+2. Find "Prompt Suite" in the list
 3. Click the pencil icon to modify any shortcut
 4. Choose key combinations that don't conflict with other extensions
 
@@ -111,7 +111,7 @@ Since this is loaded as an unpacked extension:
 1. Download the updated files
 2. Replace the old files with new ones
 3. Go to `chrome://extensions/`
-4. Click the refresh icon on the Prompt Library extension
+4. Click the refresh icon on the Prompt Suite extension
 5. Your stored prompts and settings will be preserved
 
 ## Uninstalling
@@ -119,7 +119,7 @@ Since this is loaded as an unpacked extension:
 To remove the extension:
 
 1. Go to `chrome://extensions/`
-2. Find the Prompt Library extension
+2. Find the Prompt Suite extension
 3. Click the **Remove** button
 4. Confirm the removal
 
