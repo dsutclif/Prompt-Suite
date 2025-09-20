@@ -8,7 +8,7 @@ A Chrome MV3 extension that provides a native side panel for managing and insert
 - **Organized Library**: Nested folders for prompt organization  
 - **Scheduled Prompts**: Schedule prompts for automatic submission at specific times
 - **Local Storage**: All data stored locally in your browser - zero data collection
-- **Export/Import**: Backup and restore your Prompt Suite library between devices
+- **Export/Import**: Backup and restore your Prompt Suite data between devices
 - **Apple-Minimal Design**: Clean, modern interface optimized for productivity
 
 ## Installation
@@ -34,7 +34,7 @@ See [INSTALLATION.md](INSTALLATION.md) for detailed instructions.
 - Edit prompts and folders with double-click or edit buttons
 - Drag and drop to rearrange between folders
 - Search through your library with real-time filtering
-- Export/import your entire Prompt Suite library for backup
+- Export/import your entire Prompt Suite data for backup
 
 ### Supported Platforms
 - **Claude.ai**: Full integration with composer

@@ -34,7 +34,7 @@ This guide will walk you through installing the Prompt Suite Chrome extension in
 ### Grant Permissions
 
 The extension will request permissions for:
-- **Storage**: To save your Prompt Suite library locally
+- **Storage**: To save your Prompt Suite data locally
 - **Active Tab**: To detect which LLM platform you're using
 - **Scripting**: To inject the panel and insert prompts
 - **Tabs**: To open your preferred LLM when needed
