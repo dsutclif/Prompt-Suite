@@ -4,7 +4,7 @@
   "version": "1.0.4",
   "description": "Smart prompt manager for AI chats. Organize, schedule & insert prompts into ChatGPT, Claude, Gemini & Perplexity with folders.",
 
-  "permissions": ["storage", "activeTab", "scripting", "sidePanel", "tabs", "alarms"],
+  "permissions": ["storage", "activeTab", "scripting", "sidePanel", "tabs", "alarms", "notifications"],
   
   "externally_connectable": {
     "matches": [
