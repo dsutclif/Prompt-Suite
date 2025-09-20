@@ -1,4 +1,4 @@
-// Service worker for Prompt Library Extension
+// Service worker for Prompt Suite Extension
 
 class ServiceWorker {
   constructor() {
