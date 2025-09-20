@@ -33,7 +33,7 @@ Development workflow: Always update chrome-extension-clean.zip with every code c
 - Use as both filename and URL parameter
 
 ### GitHub Repository Integration:
-- Repository: `dsutclif/PromptLibrary` 
+- Repository: `dsutclif/Prompt-Suite` 
 - GitHub Pages automatically serves new prompts after push
 - Files created in this Replit sync to GitHub when user pushes via Git tab
 
