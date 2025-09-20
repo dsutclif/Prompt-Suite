@@ -12,14 +12,22 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 37713
+externalPort = 3001
 
 [env]
 PORT = "5000"
 
 [workflows]
-runButton = "Project"
+runButton = "Package Extension"
 
 [[workflows.workflow]]
 name = "Project"
@@ -38,3 +46,11 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Package Extension"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./package.sh"
