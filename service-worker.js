@@ -102,6 +102,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           await handlePromptSubmission(message, sendResponse);
           break;
           
+        case 'OPEN_LLM_AND_CLOSE_PANEL':
+          console.log('🌐 Opening LLM and closing panel');
+          await handleOpenLLMAndClosePanel(message, sendResponse);
+          break;
+          
         default:
           sendResponse({ success: false, error: 'Unknown message type' });
       }
@@ -130,27 +135,75 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
 // Prompt insertion function
 async function handlePromptInsertion(message, sendResponse) {
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab) {
+    const tabId = message.tabId || (await chrome.tabs.query({ active: true, currentWindow: true }))[0]?.id;
+    if (!tabId) {
       sendResponse({ success: false, error: 'No active tab found' });
       return;
     }
 
-    // Inject content script and insert prompt
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: (text) => {
-        if (window.promptLibraryAdapter && window.promptLibraryAdapter.insert) {
-          return window.promptLibraryAdapter.insert(text);
-        }
-        return false;
-      },
-      args: [message.text]
+    const tab = await chrome.tabs.get(tabId);
+    if (!tab || !tab.url) {
+      sendResponse({ success: false, error: 'Invalid tab' });
+      return;
+    }
+
+    // First inject the main content script
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        files: ['content/content-script-main.js']
+      });
+      console.log('✅ Content script injected');
+    } catch (error) {
+      console.log('Content script already injected or error:', error.message);
+    }
+
+    // Now inject the appropriate adapter
+    const url = tab.url;
+    let adapterFile = null;
+    if (url.includes('claude.ai')) {
+      adapterFile = 'content/adapters/claude.js';
+    } else if (url.includes('chatgpt.com')) {
+      adapterFile = 'content/adapters/chatgpt.js';
+    } else if (url.includes('gemini.google.com')) {
+      adapterFile = 'content/adapters/gemini.js';
+    } else if (url.includes('perplexity.ai')) {
+      adapterFile = 'content/adapters/perplexity.js';
+    } else if (url.includes('grok')) {
+      adapterFile = 'content/adapters/grok.js';
+    }
+
+    if (adapterFile) {
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tabId },
+          files: [adapterFile]
+        });
+        console.log('✅ Adapter injected:', adapterFile);
+      } catch (error) {
+        console.log('Adapter already injected or error:', error.message);
+      }
+    }
+
+    // Send the INSERT_PROMPT message to the content script
+    chrome.tabs.sendMessage(tabId, {
+      type: 'INSERT_PROMPT',
+      text: message.text
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error sending message to content script:', chrome.runtime.lastError);
+        sendResponse({ success: false, error: chrome.runtime.lastError.message });
+      } else if (response && response.success) {
+        console.log('✅ Prompt inserted successfully');
+        sendResponse({ success: true });
+      } else {
+        console.error('Prompt insertion failed:', response?.error || 'Unknown error');
+        sendResponse({ success: false, error: response?.error || 'Insertion failed' });
+      }
     });
 
-    sendResponse({ success: true });
   } catch (error) {
-    console.error('Error inserting prompt:', error);
+    console.error('Error in prompt insertion:', error);
     sendResponse({ success: false, error: error.message });
   }
 }
@@ -267,6 +320,50 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     console.error('❌ Error in alarm listener:', error);
   }
 });
+
+// Handle LLM navigation and panel closing
+async function handleOpenLLMAndClosePanel(message, sendResponse) {
+  try {
+    const llmUrls = {
+      claude: 'https://claude.ai',
+      chatgpt: 'https://chatgpt.com',
+      gemini: 'https://gemini.google.com',
+      perplexity: 'https://www.perplexity.ai',
+      grok: 'https://grok.com'
+    };
+
+    const url = llmUrls[message.llm];
+    if (!url) {
+      sendResponse({ success: false, error: 'Unknown LLM type' });
+      return;
+    }
+
+    // Create new tab with the LLM URL
+    const newTab = await chrome.tabs.create({ url });
+    console.log(`✅ Opened ${message.llm} in new tab:`, newTab.id);
+    
+    // Close the side panel (if possible)
+    try {
+      if (message.currentTabId) {
+        await chrome.sidePanel.setOptions({
+          tabId: message.currentTabId,
+          enabled: false
+        });
+        await chrome.sidePanel.setOptions({
+          tabId: message.currentTabId,
+          enabled: true
+        });
+      }
+    } catch (error) {
+      console.log('Could not manipulate side panel:', error.message);
+    }
+
+    sendResponse({ success: true, tabId: newTab.id });
+  } catch (error) {
+    console.error('Error opening LLM:', error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
 
 // Initialize storage when service worker starts
 initializeStorage();
