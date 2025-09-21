@@ -13,13 +13,7 @@ while true; do
         echo "$(date): Fixed manifest.json"
     fi
     
-    # Check chrome-extension-clean version too
-    if grep -q '"name": "Prompt Library"' chrome-extension-clean/manifest.json; then
-        echo "$(date): Detected revert in chrome-extension-clean/manifest.json - fixing to Prompt Suite"
-        sed -i 's/"name": "Prompt Library"/"name": "Prompt Suite"/' chrome-extension-clean/manifest.json
-        sed -i 's/"default_title": "Prompt Library"/"default_title": "Prompt Suite"/' chrome-extension-clean/manifest.json
-        echo "$(date): Fixed chrome-extension-clean/manifest.json"
-    fi
+    # Note: chrome-extension-clean/ is auto-synced, don't edit directly
     
     sleep 1
 done
