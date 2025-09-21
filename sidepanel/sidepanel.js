@@ -1,4 +1,4 @@
-// Side Panel JavaScript for Prompt Suite Extension
+// Side Panel JavaScript for Prompt Library Extension
 
 class PromptLibrarySidePanel {
   constructor() {

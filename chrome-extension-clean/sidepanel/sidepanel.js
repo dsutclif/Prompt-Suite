@@ -1,4 +1,4 @@
-// Side Panel JavaScript for Prompt Suite Extension
+// Side Panel JavaScript for Prompt Library Extension
 
 class PromptLibrarySidePanel {
   constructor() {
@@ -19,6 +19,7 @@ class PromptLibrarySidePanel {
     await this.loadLibraryData();
     this.setupEventListeners();
     this.setupImageSources();
+    this.setupDataUpdateListener(); // Listen for external updates
     
     this.renderLibrary();
     this.checkForAutoLLMModal();
@@ -28,6 +29,19 @@ class PromptLibrarySidePanel {
     
     // Set up direct tab navigation detection
     this.setupNavigationDetection();
+  }
+
+  setupDataUpdateListener() {
+    // Listen for notifications from service worker about external data updates
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message.type === 'EXTERNAL_DATA_UPDATED') {
+        console.log('📡 Received external data update notification, refreshing...');
+        this.loadLibraryData().then(() => {
+          this.renderLibrary();
+          this.showToast('New prompt imported!', 'success');
+        });
+      }
+    });
   }
 
   async checkAndShowBanner() {
@@ -202,9 +216,15 @@ class PromptLibrarySidePanel {
       
       if (!isLLMPlatform && !this.libraryData.settings?.goToLLM) {
         // Not on LLM platform and no preferred LLM set - show settings
+        console.log('🔧 Should show LLM modal - not on LLM platform and no preference set');
         setTimeout(() => {
           this.showLLMModal();
         }, 500);
+      } else {
+        console.log('🔧 Not showing LLM modal:', { 
+          isLLMPlatform, 
+          hasGoToLLM: !!this.libraryData.settings?.goToLLM 
+        });
       }
     } catch (error) {
       console.log('Could not check current tab for auto LLM modal');
@@ -268,6 +288,9 @@ class PromptLibrarySidePanel {
 
     // Modal event listeners
     this.setupModalEventListeners();
+    
+    // Message listener for service worker communications
+    this.setupMessageListener();
   }
 
   setupModalEventListeners() {
@@ -358,26 +381,72 @@ class PromptLibrarySidePanel {
     });
   }
 
+  setupMessageListener() {
+    // Listen for messages from service worker
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message.type === 'SCHEDULED_PROMPT_EXECUTED') {
+        console.log('📨 Scheduled prompt executed - refreshing UI');
+        // Reload data and refresh UI when scheduled prompt executes
+        this.loadLibraryData().then(() => {
+          this.renderLibrary();
+        });
+      }
+    });
+  }
+
   async loadLibraryData() {
     try {
       const response = await chrome.runtime.sendMessage({ type: 'GET_LIBRARY_DATA' });
       if (response && response.success) {
-        this.libraryData = response.data;
+        // Reconstruct libraryData from individual storage keys
+        this.libraryData = {
+          folders: response.data.folders || [],
+          prompts: response.data.prompts || {},
+          settings: response.data.settings || {},
+          scheduled: response.data.scheduled || []
+        };
       } else {
         console.error('Failed to load library data:', response);
-        this.loadSampleData();
+        // Initialize with empty data - NO sample data
+        this.libraryData = { 
+          folders: [], 
+          prompts: {},
+          settings: {},
+          scheduled: []
+        };
       }
+      
+      console.log('📚 Library data loaded:', {
+        folders: this.libraryData.folders.length,
+        prompts: Object.keys(this.libraryData.prompts).length,
+        settings: this.libraryData.settings
+      });
+      
     } catch (error) {
       console.error('Error loading library data:', error);
-      this.loadSampleData();
+      // Initialize with empty data on error - NO sample data
+      this.libraryData = { 
+        folders: [], 
+        prompts: {},
+        settings: {},
+        scheduled: []
+      };
     }
   }
 
   async saveLibraryData() {
     try {
+      // Save as individual keys to match service worker expectations
+      const dataToSave = {
+        folders: this.libraryData.folders || [],
+        prompts: this.libraryData.prompts || {},
+        settings: this.libraryData.settings || {},
+        scheduled: this.libraryData.scheduled || []
+      };
+      
       await chrome.runtime.sendMessage({ 
         type: 'SAVE_LIBRARY_DATA', 
-        data: this.libraryData 
+        data: dataToSave 
       });
     } catch (error) {
       console.error('Error saving library data:', error);
@@ -428,31 +497,43 @@ class PromptLibrarySidePanel {
     const rootFolders = this.libraryData.folders?.filter(f => !f.parentId) || [];
     const rootPrompts = Object.values(this.libraryData.prompts || {}).filter(p => !p.folderId);
 
-    if (rootFolders.length === 0 && rootPrompts.length === 0) {
-      content.innerHTML = '<div class="empty-state">Your library is empty. Add a folder or prompt to get started.</div>';
-    } else {
-      let html = '';
+    let html = '';
+    
+    // Root folders FIRST
+    rootFolders.forEach(folder => {
+      html += this.renderFolder(folder);
+    });
+
+    // Root prompts (prompts without a folder)
+    if (rootPrompts.length > 0) {
+      html += `
+        <div class="folder-section">
+          <div class="folder-header">
+            <div class="folder-name">Uncategorized</div>
+          </div>
+          <div class="folder-content">
+      `;
       
-      // Root folders
-      rootFolders.forEach(folder => {
-        html += this.renderFolder(folder);
+      rootPrompts.forEach(prompt => {
+        html += this.renderPrompt(prompt);
       });
-
-      // Root prompts (prompts without a folder)
-      if (rootPrompts.length > 0) {
-        rootPrompts.forEach(prompt => {
-          html += this.renderPrompt(prompt);
-        });
-      }
-
-      // Recently used section
-      html += this.renderRecentlyUsed();
       
-      // Scheduled prompts section
-      html += this.renderScheduledPrompts();
-
-      content.innerHTML = html;
+      html += '</div></div>';
     }
+    
+    // Add recently used prompts section AFTER folders
+    html += this.renderRecentlyUsed();
+    
+    // Add scheduled prompts section AFTER recently used
+    html += this.renderScheduledPrompts();
+    
+    // Show empty state only if no content at all
+    if (!html.trim() && rootFolders.length === 0 && rootPrompts.length === 0) {
+      content.innerHTML = '<div class="empty-state">Your library is empty. Add a folder or prompt to get started.</div>';
+      return;
+    }
+
+    content.innerHTML = html;
 
     this.updateStats();
     this.attachEventListeners();
@@ -1324,8 +1405,8 @@ class PromptLibrarySidePanel {
           this.showToast(`Opening ${this.selectedLLM}...`, 'success');
         } catch (error) {
           // Fallback to simple tab creation
-          await chrome.tabs.create({ url });
-          this.showToast(`Opening ${this.selectedLLM}...`, 'success');
+          await chrome.tabs.update({ url });
+          this.showToast(`Navigating to ${this.selectedLLM}...`, 'success');
         }
       }
     } else {
@@ -1566,13 +1647,24 @@ class PromptLibrarySidePanel {
     const prompt = this.libraryData.prompts[promptId];
     if (!prompt) return;
     
-    this.showSchedulePromptModal(prompt);
+    this.showSchedulePromptModal(prompt, existingSchedule);
   }
 
-  showSchedulePromptModal(prompt) {
+  showSchedulePromptModal(prompt, existingSchedule = null) {
     const now = new Date();
-    const defaultTime = new Date(now.getTime() + 5 * 60000); // 5 minutes from now
-    const timeString = defaultTime.toISOString().slice(0, 16);
+    // Use current local time, not UTC
+    const defaultTime = existingSchedule 
+      ? new Date(existingSchedule.scheduleTime)
+      : now;
+    
+    // Format for datetime-local input (needs local time, not UTC)
+    const year = defaultTime.getFullYear();
+    const month = String(defaultTime.getMonth() + 1).padStart(2, '0');
+    const day = String(defaultTime.getDate()).padStart(2, '0');
+    const hours = String(defaultTime.getHours()).padStart(2, '0');
+    const minutes = String(defaultTime.getMinutes()).padStart(2, '0');
+    const timeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+    const isAutoSubmit = existingSchedule ? existingSchedule.autoSubmit : true;
     
     const modalHtml = `
       <div class="modal-overlay" id="schedule-modal-overlay">
@@ -1591,13 +1683,15 @@ class PromptLibrarySidePanel {
             </div>
             <div class="form-group">
               <label>
-                <input type="checkbox" id="auto-submit" checked> 
+                <input type="checkbox" id="auto-submit" ${isAutoSubmit ? 'checked' : ''}> 
                 Auto-submit after pasting
               </label>
             </div>
             <div class="modal-buttons">
               <button class="modal-btn secondary" id="schedule-cancel-btn">Cancel</button>
-              <button class="modal-btn primary" id="schedule-save-btn" data-prompt-id="${prompt.id}">Schedule</button>
+              <button class="modal-btn primary" id="schedule-save-btn" data-prompt-id="${prompt.id}" ${existingSchedule ? `data-schedule-id="${existingSchedule.id}"` : ''}>
+                ${existingSchedule ? 'Update Schedule' : 'Schedule'}
+              </button>
             </div>
           </div>
         </div>
@@ -1621,7 +1715,8 @@ class PromptLibrarySidePanel {
     
     document.getElementById('schedule-save-btn').addEventListener('click', (e) => {
       const promptId = e.target.dataset.promptId;
-      this.saveScheduledPrompt(promptId);
+      const scheduleId = e.target.dataset.scheduleId || null;
+      this.saveScheduledPrompt(promptId, scheduleId);
     });
     
     // Close on overlay click
@@ -1639,7 +1734,7 @@ class PromptLibrarySidePanel {
     }
   }
 
-  async saveScheduledPrompt(promptId) {
+  async saveScheduledPrompt(promptId, existingScheduleId = null) {
     const scheduleTime = document.getElementById('schedule-time').value;
     const autoSubmit = document.getElementById('auto-submit').checked;
     
@@ -1661,85 +1756,53 @@ class PromptLibrarySidePanel {
 
     const timeoutMs = scheduleDate.getTime() - now.getTime();
     
-    // Store scheduled prompt info
+    // Initialize scheduled array if needed
     if (!this.libraryData.scheduled) this.libraryData.scheduled = [];
-    const scheduledPrompt = {
-      id: 'sch_' + Date.now(),
-      promptId: promptId,
-      scheduleTime: scheduleDate.toISOString(),
-      autoSubmit: autoSubmit,
-      created: now.toISOString()
-    };
     
-    this.libraryData.scheduled.push(scheduledPrompt);
+    if (existingScheduleId) {
+      // Update existing schedule
+      const scheduleIndex = this.libraryData.scheduled.findIndex(s => s.id === existingScheduleId);
+      if (scheduleIndex !== -1) {
+        this.libraryData.scheduled[scheduleIndex] = {
+          ...this.libraryData.scheduled[scheduleIndex],
+          scheduleTime: scheduleDate.toISOString(),
+          autoSubmit: autoSubmit,
+          updated: now.toISOString()
+        };
+        this.showToast('Schedule updated successfully', 'success');
+      } else {
+        this.showToast('Schedule not found', 'error');
+        return;
+      }
+    } else {
+      // Create new schedule
+      const scheduledPrompt = {
+        id: 'sch_' + Date.now(),
+        promptId: promptId,
+        scheduleTime: scheduleDate.toISOString(),
+        autoSubmit: autoSubmit,
+        created: now.toISOString()
+      };
+      
+      this.libraryData.scheduled.push(scheduledPrompt);
+      this.showToast('Prompt scheduled successfully', 'success');
+    }
     await this.saveLibraryData();
 
-    // Set timeout to execute the prompt
-    setTimeout(async () => {
-      try {
-        // First, ensure we're on the correct tab by switching to an LLM platform if needed
-        const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        const currentUrl = activeTab ? activeTab.url : '';
-        const supportedDomains = ['claude.ai', 'chatgpt.com', 'gemini.google.com', 'perplexity.ai'];
-        const isLLMPlatform = supportedDomains.some(domain => currentUrl.includes(domain));
-        
-        let targetTabId = activeTab?.id;
-        
-        // If not on LLM platform, open preferred LLM
-        if (!isLLMPlatform) {
-          const llmUrls = {
-            claude: 'https://claude.ai',
-            chatgpt: 'https://chatgpt.com',
-            gemini: 'https://gemini.google.com',
-            perplexity: 'https://www.perplexity.ai'
-          };
-          
-          const preferredLLM = this.libraryData.settings?.goToLLM || 'chatgpt';
-          const url = llmUrls[preferredLLM];
-          
-          if (url) {
-            const newTab = await chrome.tabs.create({ url, active: true });
-            targetTabId = newTab.id;
-            
-            // Wait for tab to load
-            await new Promise(resolve => setTimeout(resolve, 3000));
-          }
-        }
-        
-        // Insert the prompt with explicit tabId
-        const response = await chrome.runtime.sendMessage({
-          type: 'INSERT_PROMPT',
-          text: prompt.body,
-          tabId: targetTabId
-        });
-        
-        if (response && response.success && autoSubmit) {
-          // If auto-submit is enabled, try to submit the prompt
-          setTimeout(async () => {
-            try {
-              await chrome.runtime.sendMessage({
-                type: 'SUBMIT_PROMPT',
-                tabId: targetTabId
-              });
-            } catch (error) {
-              console.error('Failed to auto-submit:', error);
-            }
-          }, 500);
-        }
-        
-        this.showToast('Scheduled prompt executed!', 'success');
-      } catch (error) {
-        console.error('Failed to execute scheduled prompt:', error);
-        this.showToast('Failed to execute scheduled prompt', 'error');
-      }
-      
-      // Remove from scheduled list after execution (auto-delete)
-      this.libraryData.scheduled = this.libraryData.scheduled.filter(sp => sp.id !== scheduledPrompt.id);
-      await this.saveLibraryData();
-      
-      // Refresh UI to show the prompt has been removed
-      this.renderLibrary();
-    }, timeoutMs);
+    // Ask service worker to handle the scheduling (so it persists)
+    let scheduleIdToUse;
+    if (existingScheduleId) {
+      scheduleIdToUse = existingScheduleId;
+    } else {
+      // Get the ID of the newly created schedule
+      scheduleIdToUse = this.libraryData.scheduled[this.libraryData.scheduled.length - 1]?.id;
+    }
+    
+    chrome.runtime.sendMessage({
+      type: 'SCHEDULE_PROMPT_EXECUTION',
+      scheduleId: scheduleIdToUse,
+      scheduleTime: scheduleDate.toISOString()
+    });
 
     this.hideScheduleModal();
     this.showToast(`Prompt scheduled for ${scheduleDate.toLocaleString()}`, 'success');
@@ -1805,7 +1868,7 @@ class PromptLibrarySidePanel {
       .sort((a, b) => new Date(a.scheduleTime) - new Date(b.scheduleTime));
   }
 
-  deleteSchedule(scheduleId) {
+  async deleteSchedule(scheduleId) {
     if (!this.libraryData.scheduled) return;
 
     const scheduleIndex = this.libraryData.scheduled.findIndex(s => s.id === scheduleId);
@@ -1815,6 +1878,14 @@ class PromptLibrarySidePanel {
     const prompt = this.libraryData.prompts[schedule.promptId];
     
     if (confirm(`Cancel scheduled prompt "${prompt?.title || 'Unknown'}"?`)) {
+      // Clear the Chrome alarm before removing from storage
+      try {
+        await chrome.alarms.clear(scheduleId);
+        console.log(`🧹 Cleared alarm for deleted schedule: ${scheduleId}`);
+      } catch (error) {
+        console.warn('Failed to clear alarm:', error);
+      }
+
       this.libraryData.scheduled.splice(scheduleIndex, 1);
       this.saveLibraryData();
       this.renderLibrary();
