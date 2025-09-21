@@ -22,17 +22,17 @@ Create a new file in `/prompts/[kebab-case-id].json`:
 
 ### Step 2: Generate URLs
 Two versions are available:
-- **Production**: `https://dsutclif.github.io/PromptLibrary/index.html?id=[kebab-case-id]`
-- **Development**: `https://dsutclif.github.io/PromptLibrary/index-dev.html?id=[kebab-case-id]`
+- **Production**: `https://dsutclif.github.io/PromptSuite/index.html?id=[kebab-case-id]`
+- **Development**: `https://dsutclif.github.io/PromptSuite/index-dev.html?id=[kebab-case-id]`
 
 ### Step 3: Update Link Registry
 Add the new URLs to `/prompt-bridge/prompt-links.txt`:
 ```
 ## Production Links (Published Extension)
-https://dsutclif.github.io/PromptLibrary/index.html?id=[your-new-id]
+https://dsutclif.github.io/PromptSuite/index.html?id=[your-new-id]
 
 ## Development Links (Unpacked Extension)  
-https://dsutclif.github.io/PromptLibrary/index-dev.html?id=[your-new-id]
+https://dsutclif.github.io/PromptSuite/index-dev.html?id=[your-new-id]
 ```
 
 ### Step 4: Commit and Push
@@ -46,8 +46,8 @@ Push your changes to GitHub for the links to work.
 ## Example Links
 
 ```
-https://dsutclif.github.io/PromptLibrary/index.html?id=email-writer
-https://dsutclif.github.io/PromptLibrary/index.html?id=code-reviewer
+https://dsutclif.github.io/PromptSuite/index.html?id=email-writer
+https://dsutclif.github.io/PromptSuite/index.html?id=code-reviewer
 ```
 
 ## Features

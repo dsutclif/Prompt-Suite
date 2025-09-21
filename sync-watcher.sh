@@ -52,16 +52,16 @@ repackage() {
     # Remove any existing chrome-extension-clean*.zip files
     rm -f chrome-extension-clean*.zip
 
-    # Create timestamped filename
-    TIMESTAMP=$(date +"%Y%m%d_%H:%M")
+    # Create timestamped filename with MM-DD-YY_HH:MM format
+    TIMESTAMP=$(TZ='America/New_York' date +"%m-%d-%y_%H-%M")
     echo "Debug: Timestamp = $TIMESTAMP"
 
     NEW_FILENAME="chrome-extension-clean_${TIMESTAMP}.zip"
     echo "Debug: Creating file = $NEW_FILENAME"
 
-    # Create new zip
+    # Create new zip (zip contents directly, not the folder)
     echo "Creating ${NEW_FILENAME}..."
-    zip -r "$NEW_FILENAME" chrome-extension-clean/
+    (cd chrome-extension-clean && zip -r "../${NEW_FILENAME}" . -x "*.zip")
 
     if [ -f "$NEW_FILENAME" ]; then
         echo "Package updated: $NEW_FILENAME"
