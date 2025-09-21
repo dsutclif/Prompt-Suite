@@ -243,7 +243,7 @@ class ServiceWorker {
     try {
       await chrome.scripting.executeScript({
         target: { tabId },
-        func: () => window.promptLibraryInjected
+        func: () => !!(window.promptLibraryInjected || window.promptSuiteInjected)
       });
     } catch (error) {
       // Content script not injected, inject it

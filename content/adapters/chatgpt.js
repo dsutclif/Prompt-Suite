@@ -272,4 +272,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+// Add Prompt Suite alias for rebranding
+window.promptSuiteAdapter = window.promptLibraryAdapter;
+
 console.log('ChatGPT adapter loaded');

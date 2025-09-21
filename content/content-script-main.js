@@ -3,6 +3,7 @@ if (window.promptLibraryContentScriptLoaded) {
   // Skip duplicate initialization
 } else {
   window.promptLibraryContentScriptLoaded = true;
+  window.promptSuiteContentScriptLoaded = true;
 
 // Main content script with integrated adapters for LLM platforms
 
@@ -457,6 +458,9 @@ window.promptLibraryAdapters = {
     }
   }
 };
+
+// Add Prompt Suite alias for rebranding
+window.promptSuiteAdapters = window.promptLibraryAdapters;
 
 // Get the appropriate adapter for the current site
 function getAdapter() {

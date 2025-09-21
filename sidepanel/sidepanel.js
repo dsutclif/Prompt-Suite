@@ -1940,4 +1940,8 @@ class PromptLibrarySidePanel {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   window.promptLibrary = new PromptLibrarySidePanel();
+  
+  // Add Prompt Suite aliases for rebranding
+  window.PromptSuiteSidePanel = PromptLibrarySidePanel;
+  window.promptSuite = window.promptLibrary;
 });
