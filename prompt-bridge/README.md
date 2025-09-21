@@ -1,6 +1,6 @@
-# Prompt Library Bridge
+# Prompt Suite Bridge
 
-This is a GitHub Pages hosted bridge for importing prompts into the Prompt Library Chrome extension via clean, short URLs.
+This is a GitHub Pages hosted bridge for importing prompts into the Prompt Suite Chrome extension via clean, short URLs.
 
 ## How It Works
 

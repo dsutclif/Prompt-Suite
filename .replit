@@ -4,7 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["zip"]
+packages = ["zip", "imagemagick", "inotify-tools", "inotify-tools"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -15,11 +15,15 @@ run = ["npm", "run", "start"]
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 36331
+externalPort = 3000
+
 [env]
 PORT = "5000"
 
 [workflows]
-runButton = "Project"
+runButton = "Start Sync Watcher"
 
 [[workflows.workflow]]
 name = "Project"
@@ -38,3 +42,11 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start Sync Watcher"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./sync-watcher.sh"

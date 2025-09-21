@@ -1,4 +1,4 @@
-# Privacy Policy - Prompt Library Extension
+# Privacy Policy - Prompt Suite Extension
 
 ## Data Collection
 This extension does **NOT** collect any personal data. All information remains on your device.
