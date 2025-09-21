@@ -1,12 +1,12 @@
 /**
- * Utility script for generating import links for the Prompt Library extension
+ * Utility script for generating import links for the Prompt Suite extension
  * 
  * Usage:
  * 1. Replace YOUR_GITHUB_USERNAME with your actual GitHub username
  * 2. Use generateImportLink() to create links for your prompts
  */
 
-const BASE_URL = 'https://dsutclif.github.io/PromptLibrary/';
+const BASE_URL = 'https://dsutclif.github.io/PromptSuite/';
 
 /**
  * Generate an import link for a prompt

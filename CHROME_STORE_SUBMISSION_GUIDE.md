@@ -64,7 +64,7 @@ icons/
 - Any .md files except if required
 
 ### Steps to Create Clean Submission:
-1. Create a new folder called "prompt-library-extension"
+1. Create a new folder called "prompt-suite-extension"
 2. Copy ONLY the required files listed above
 3. Verify manifest.json points to correct file paths
 4. Test the extension locally by loading the clean folder
