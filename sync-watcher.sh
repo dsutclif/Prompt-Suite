@@ -86,6 +86,11 @@ inotifywait -m -r -e modify,create,moved_to \
 
     # Check if this file has a counterpart in chrome-extension-clean
     if has_clean_counterpart "$clean_path"; then
+        # Skip manifest.json to prevent overwriting "Prompt Suite" branding
+        if [[ "$clean_path" == "manifest.json" ]]; then
+            echo "Skipped manifest.json sync to preserve Prompt Suite branding"
+            continue
+        fi
         echo "Detected change: $clean_path"
         sync_and_package "$clean_path"
     fi
