@@ -1,6 +1,6 @@
-# Prompt Suite Bridge
+# Prompt Library Bridge
 
-This is a GitHub Pages hosted bridge for importing prompts into the Prompt Suite Chrome extension via clean, short URLs.
+This is a GitHub Pages hosted bridge for importing prompts into the Prompt Library Chrome extension via clean, short URLs.
 
 ## How It Works
 
@@ -22,17 +22,17 @@ Create a new file in `/prompts/[kebab-case-id].json`:
 
 ### Step 2: Generate URLs
 Two versions are available:
-- **Production**: `https://dsutclif.github.io/Prompt-Suite/index.html?id=[kebab-case-id]`
-- **Development**: `https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=[kebab-case-id]`
+- **Production**: `https://dsutclif.github.io/PromptLibrary/index.html?id=[kebab-case-id]`
+- **Development**: `https://dsutclif.github.io/PromptLibrary/index-dev.html?id=[kebab-case-id]`
 
 ### Step 3: Update Link Registry
 Add the new URLs to `/prompt-bridge/prompt-links.txt`:
 ```
 ## Production Links (Published Extension)
-https://dsutclif.github.io/Prompt-Suite/index.html?id=[your-new-id]
+https://dsutclif.github.io/PromptLibrary/index.html?id=[your-new-id]
 
 ## Development Links (Unpacked Extension)  
-https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=[your-new-id]
+https://dsutclif.github.io/PromptLibrary/index-dev.html?id=[your-new-id]
 ```
 
 ### Step 4: Commit and Push
@@ -46,8 +46,8 @@ Push your changes to GitHub for the links to work.
 ## Example Links
 
 ```
-https://dsutclif.github.io/Prompt-Suite/index.html?id=email-writer
-https://dsutclif.github.io/Prompt-Suite/index.html?id=code-reviewer
+https://dsutclif.github.io/PromptLibrary/index.html?id=email-writer
+https://dsutclif.github.io/PromptLibrary/index.html?id=code-reviewer
 ```
 
 ## Features

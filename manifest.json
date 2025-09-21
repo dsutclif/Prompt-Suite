@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Prompt Suite",
+  "name": "Prompt Library",
   "version": "1.0.1",
   "description": "Smart prompt manager for AI chats. Organize, schedule & insert prompts into ChatGPT, Claude, Gemini & Perplexity with folders.",
 
@@ -32,7 +32,7 @@
   },
 
   "action": {
-    "default_title": "Prompt Suite"
+    "default_title": "Prompt Library"
   },
 
   "icons": {
