@@ -53,7 +53,7 @@ repackage() {
     rm -f chrome-extension-clean*.zip
 
     # Create timestamped filename
-    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+    TIMESTAMP=$(date +"%Y%m%d_%H:%M")
     echo "Debug: Timestamp = $TIMESTAMP"
 
     NEW_FILENAME="chrome-extension-clean_${TIMESTAMP}.zip"
