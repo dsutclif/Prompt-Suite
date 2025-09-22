@@ -113,6 +113,12 @@ repackage() {
     if [ -f "$NEW_FILENAME" ]; then
         echo "Package updated: $NEW_FILENAME"
         echo "Size: $(ls -lh "$NEW_FILENAME" | awk '{print $5}')"
+        
+        # Move zip to client/public for web server access
+        mkdir -p client/public
+        mv "$NEW_FILENAME" client/public/
+        echo "Zip file moved to client/public/ for download access"
+        echo "Download URL: http://localhost:5000/${NEW_FILENAME}"
     else
         echo "Error creating zip package"
     fi
