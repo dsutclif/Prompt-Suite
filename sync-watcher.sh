@@ -95,8 +95,8 @@ sync_and_package() {
 
 # Function to repackage the extension
 repackage() {
-    # Remove any existing chrome-extension-clean*.zip files
-    rm -f chrome-extension-clean*.zip
+    # Remove any existing chrome-extension-clean*.zip files from client/public
+    rm -f client/public/chrome-extension-clean*.zip
 
     # Create timestamped filename with MM-DD-YY_HH:MM format using Eastern time
     TIMESTAMP=$(get_eastern_time "timestamp")
