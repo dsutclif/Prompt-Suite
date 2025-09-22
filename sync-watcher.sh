@@ -1,7 +1,45 @@
 #!/bin/bash
 
+# Function to get timezone for timestamps
+get_timezone() {
+    # Priority order: ENV variable -> Eastern -> System timezone -> UTC fallback
+    if [ -n "$SYNC_TIMEZONE" ]; then
+        echo "$SYNC_TIMEZONE"
+    elif timedatectl show --property=Timezone --value 2>/dev/null | grep -q "America/New_York\|US/Eastern"; then
+        echo "America/New_York"
+    elif [ -f /etc/timezone ] && grep -q "America/New_York\|US/Eastern" /etc/timezone; then
+        echo "America/New_York"
+    elif command -v timedatectl >/dev/null 2>&1; then
+        # Try to get system timezone, fallback to Eastern if detection fails
+        DETECTED_TZ=$(timedatectl show --property=Timezone --value 2>/dev/null)
+        if [ -n "$DETECTED_TZ" ] && [ "$DETECTED_TZ" != "n/a" ]; then
+            echo "$DETECTED_TZ"
+        else
+            echo "America/New_York"
+        fi
+    elif [ -f /etc/timezone ]; then
+        # Try reading timezone from file
+        DETECTED_TZ=$(cat /etc/timezone 2>/dev/null | head -1)
+        if [ -n "$DETECTED_TZ" ]; then
+            echo "$DETECTED_TZ"
+        else
+            echo "America/New_York"
+        fi
+    else
+        # Final fallback to Eastern timezone
+        echo "America/New_York"
+    fi
+}
+
 echo "Starting Chrome Extension Clean sync watcher..."
 echo "Monitoring for changes that match files in chrome-extension-clean/"
+
+# Display timezone info
+TIMEZONE=$(get_timezone)
+CURRENT_TIME=$(TZ="$TIMEZONE" date +"%Y-%m-%d %H:%M:%S %Z")
+echo "Using timezone: $TIMEZONE"
+echo "Current time: $CURRENT_TIME"
+echo "Set SYNC_TIMEZONE environment variable to override (e.g., export SYNC_TIMEZONE='America/Los_Angeles')"
 echo "Press Ctrl+C to stop"
 echo ""
 
@@ -52,8 +90,12 @@ repackage() {
     # Remove any existing chrome-extension-clean*.zip files
     rm -f chrome-extension-clean*.zip
 
+    # Get timezone for timestamps
+    TIMEZONE=$(get_timezone)
+    
     # Create timestamped filename with MM-DD-YY_HH:MM format
-    TIMESTAMP=$(TZ='America/New_York' date +"%m-%d-%y_%H-%M")
+    TIMESTAMP=$(TZ="$TIMEZONE" date +"%m-%d-%y_%H-%M")
+    echo "Debug: Using timezone = $TIMEZONE"
     echo "Debug: Timestamp = $TIMESTAMP"
 
     NEW_FILENAME="chrome-extension-clean_${TIMESTAMP}.zip"
