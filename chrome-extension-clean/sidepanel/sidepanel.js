@@ -1944,6 +1944,4 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add Prompt Suite aliases for rebranding
   window.PromptSuiteSidePanel = PromptLibrarySidePanel;
   window.promptSuite = window.promptLibrary;
-});/* Sync test change Sun Sep 21 11:23:58 PM UTC 2025 */
-Test change for timezone Mon Sep 22 12:49:10 AM UTC 2025
-/* Testing deletion feature Mon Sep 22 01:10:15 AM UTC 2025 */
+});

@@ -548,4 +548,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
   // Content script successfully loaded
-}/* Testing deletion workflow Mon Sep 22 01:09:26 AM UTC 2025 */
+}
