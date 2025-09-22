@@ -39,11 +39,38 @@ window.promptLibraryAdapter = {
       // Focus the composer
       composer.focus();
       
-      // Clear existing content
-      composer.textContent = '';
+      // Use enhanced formatting-preserving insertion
+      if (typeof insertFormattedText === 'function') {
+        insertFormattedText(composer, text);
+      } else {
+        // Fallback to enhanced manual insertion
+        composer.innerHTML = '';
+        
+        // Convert line breaks to <br> tags and preserve formatting
+        const formattedText = text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\r\n/g, '<br>')
+          .replace(/\n/g, '<br>')
+          .replace(/\r/g, '<br>')
+          .replace(/  /g, ' &nbsp;');
+        composer.innerHTML = formattedText;
+        
+        // Set cursor to end
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(composer);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
       
-      // Insert new text
-      composer.textContent = text;
+      // Trigger comprehensive events
+      composer.dispatchEvent(new Event('input', { bubbles: true }));
+      composer.dispatchEvent(new Event('change', { bubbles: true }));
+      composer.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
+      composer.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
       
       // Trigger input events
       this.triggerEvents(composer);
