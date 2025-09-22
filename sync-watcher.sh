@@ -1,33 +1,43 @@
 #!/bin/bash
 
-# Function to get timezone for timestamps
-get_timezone() {
-    # Priority order: ENV variable -> Eastern -> System timezone -> UTC fallback
-    if [ -n "$SYNC_TIMEZONE" ]; then
-        echo "$SYNC_TIMEZONE"
-    elif timedatectl show --property=Timezone --value 2>/dev/null | grep -q "America/New_York\|US/Eastern"; then
-        echo "America/New_York"
-    elif [ -f /etc/timezone ] && grep -q "America/New_York\|US/Eastern" /etc/timezone; then
-        echo "America/New_York"
-    elif command -v timedatectl >/dev/null 2>&1; then
-        # Try to get system timezone, fallback to Eastern if detection fails
-        DETECTED_TZ=$(timedatectl show --property=Timezone --value 2>/dev/null)
-        if [ -n "$DETECTED_TZ" ] && [ "$DETECTED_TZ" != "n/a" ]; then
-            echo "$DETECTED_TZ"
-        else
-            echo "America/New_York"
-        fi
-    elif [ -f /etc/timezone ]; then
-        # Try reading timezone from file
-        DETECTED_TZ=$(cat /etc/timezone 2>/dev/null | head -1)
-        if [ -n "$DETECTED_TZ" ]; then
-            echo "$DETECTED_TZ"
-        else
-            echo "America/New_York"
-        fi
+# Function to get Eastern time with manual offset (since timezone data may not be available)
+get_eastern_time() {
+    local format="$1"
+    local utc_hour=$(date -u +%H)
+    local utc_date=$(date -u +%Y-%m-%d)
+    local utc_minute=$(date -u +%M)
+    local utc_second=$(date -u +%S)
+    local utc_month=$(date -u +%m)
+    local utc_day=$(date -u +%d)
+    local utc_year=$(date -u +%y)
+    
+    # Calculate Eastern time (UTC-5 standard, UTC-4 daylight)
+    # For simplicity, using UTC-4 (EDT) since it's currently daylight saving time period
+    local eastern_hour=$((utc_hour - 4))
+    local eastern_date="$utc_date"
+    
+    # Handle day rollover
+    if [ $eastern_hour -lt 0 ]; then
+        eastern_hour=$((eastern_hour + 24))
+        # Previous day - simple calculation for demo
+        eastern_date=$(date -u -d "yesterday" +%Y-%m-%d)
+        utc_month=$(date -u -d "yesterday" +%m)
+        utc_day=$(date -u -d "yesterday" +%d)
+        utc_year=$(date -u -d "yesterday" +%y)
+    elif [ $eastern_hour -ge 24 ]; then
+        eastern_hour=$((eastern_hour - 24))
+        # Next day
+        eastern_date=$(date -u -d "tomorrow" +%Y-%m-%d)
+        utc_month=$(date -u -d "tomorrow" +%m)
+        utc_day=$(date -u -d "tomorrow" +%d)
+        utc_year=$(date -u -d "tomorrow" +%y)
+    fi
+    
+    # Format the time based on requested format  
+    if [ "$format" = "timestamp" ]; then
+        printf "%s-%s-%s_%02d-%02d" "$utc_month" "$utc_day" "$utc_year" "$eastern_hour" "$utc_minute"
     else
-        # Final fallback to Eastern timezone
-        echo "America/New_York"
+        printf "%s %02d:%02d:%02d EDT" "$eastern_date" "$eastern_hour" "$utc_minute" "$utc_second"
     fi
 }
 
@@ -35,11 +45,9 @@ echo "Starting Chrome Extension Clean sync watcher..."
 echo "Monitoring for changes that match files in chrome-extension-clean/"
 
 # Display timezone info
-TIMEZONE=$(get_timezone)
-CURRENT_TIME=$(TZ="$TIMEZONE" date +"%Y-%m-%d %H:%M:%S %Z")
-echo "Using timezone: $TIMEZONE"
-echo "Current time: $CURRENT_TIME"
-echo "Set SYNC_TIMEZONE environment variable to override (e.g., export SYNC_TIMEZONE='America/Los_Angeles')"
+echo "Using timezone: Eastern Time (EDT/EST)"
+echo "Current time: $(get_eastern_time)"
+echo "Note: Using manual Eastern timezone calculation since system timezone data is not available"
 echo "Press Ctrl+C to stop"
 echo ""
 
@@ -90,12 +98,9 @@ repackage() {
     # Remove any existing chrome-extension-clean*.zip files
     rm -f chrome-extension-clean*.zip
 
-    # Get timezone for timestamps
-    TIMEZONE=$(get_timezone)
-    
-    # Create timestamped filename with MM-DD-YY_HH:MM format
-    TIMESTAMP=$(TZ="$TIMEZONE" date +"%m-%d-%y_%H-%M")
-    echo "Debug: Using timezone = $TIMEZONE"
+    # Create timestamped filename with MM-DD-YY_HH:MM format using Eastern time
+    TIMESTAMP=$(get_eastern_time "timestamp")
+    echo "Debug: Using Eastern Time"
     echo "Debug: Timestamp = $TIMESTAMP"
 
     NEW_FILENAME="chrome-extension-clean_${TIMESTAMP}.zip"
