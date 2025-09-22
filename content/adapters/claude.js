@@ -41,7 +41,7 @@ window.promptLibraryAdapter = {
       
       // Use enhanced formatting-preserving insertion
       if (typeof insertFormattedText === 'function') {
-        insertFormattedText(composer, text);
+        await insertFormattedText(composer, text);
       } else {
         // Fallback to enhanced manual insertion
         composer.innerHTML = '';
@@ -66,14 +66,8 @@ window.promptLibraryAdapter = {
         selection.addRange(range);
       }
       
-      // Trigger comprehensive events
-      composer.dispatchEvent(new Event('input', { bubbles: true }));
-      composer.dispatchEvent(new Event('change', { bubbles: true }));
-      composer.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
-      composer.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
-      
-      // Trigger input events
-      this.triggerEvents(composer);
+      // Event triggering is now handled by insertFormattedText
+      // this.triggerEvents(composer); // Removed to avoid duplicate events
       
       // Scroll into view
       composer.scrollIntoView({ behavior: 'smooth', block: 'center' });

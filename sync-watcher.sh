@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Function to get Eastern time with manual offset (since timezone data may not be available)
+# Function to adjust Eastern time with manual offset (since timezone data may not be available)
 get_eastern_time() {
     local format="$1"
     local utc_hour=$(date -u +%H)
