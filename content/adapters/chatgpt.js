@@ -52,19 +52,32 @@ window.promptLibraryAdapter = {
       // Focus the composer
       composer.focus();
       
-      // Use enhanced formatting-preserving insertion
+      // Use enhanced formatting-preserving insertion with append
       if (typeof insertFormattedText === 'function') {
-        await insertFormattedText(composer, text);
+        await insertFormattedText(composer, text, true); // true = append mode
       } else {
-        // Fallback to enhanced manual insertion
+        // Fallback to enhanced manual insertion with append
+        let existingContent = '';
+        if (composer.tagName === 'TEXTAREA') {
+          existingContent = composer.value || '';
+        } else {
+          existingContent = composer.textContent || composer.innerText || '';
+        }
+        
+        // Add separator if there's existing content
+        let finalText = text;
+        if (existingContent.trim()) {
+          finalText = existingContent.trimEnd() + '\n\n' + text;
+        }
+        
         if (composer.tagName === 'TEXTAREA') {
           // For textarea, preserve line breaks as \n
-          composer.value = text;
-          composer.setSelectionRange(text.length, text.length);
+          composer.value = finalText;
+          composer.setSelectionRange(finalText.length, finalText.length);
         } else {
           // For contenteditable, convert line breaks to <br> tags
           composer.innerHTML = '';
-          const formattedText = text
+          const formattedText = finalText
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
@@ -81,6 +94,19 @@ window.promptLibraryAdapter = {
           range.collapse(false);
           selection.removeAllRanges();
           selection.addRange(range);
+        }
+        
+        // Trigger events in fallback case
+        if (composer.tagName === 'TEXTAREA') {
+          composer.dispatchEvent(new Event('input', { bubbles: true }));
+          composer.dispatchEvent(new Event('change', { bubbles: true }));
+          composer.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
+          composer.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+        } else {
+          composer.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+          composer.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
+          composer.dispatchEvent(new Event('input', { bubbles: true }));
+          composer.dispatchEvent(new Event('change', { bubbles: true }));
         }
       }
       

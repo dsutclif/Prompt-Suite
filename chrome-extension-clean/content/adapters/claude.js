@@ -39,15 +39,23 @@ window.promptLibraryAdapter = {
       // Focus the composer
       composer.focus();
       
-      // Use enhanced formatting-preserving insertion
+      // Use enhanced formatting-preserving insertion with append
       if (typeof insertFormattedText === 'function') {
-        await insertFormattedText(composer, text);
+        await insertFormattedText(composer, text, true); // true = append mode
       } else {
-        // Fallback to enhanced manual insertion
+        // Fallback to enhanced manual insertion with append
+        const existingContent = composer.textContent || composer.innerText || '';
+        
+        // Add separator if there's existing content
+        let finalText = text;
+        if (existingContent.trim()) {
+          finalText = existingContent.trimEnd() + '\n\n' + text;
+        }
+        
         composer.innerHTML = '';
         
         // Convert line breaks to <br> tags and preserve formatting
-        const formattedText = text
+        const formattedText = finalText
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
@@ -64,6 +72,12 @@ window.promptLibraryAdapter = {
         range.collapse(false);
         selection.removeAllRanges();
         selection.addRange(range);
+        
+        // Trigger events in fallback case
+        composer.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+        composer.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
+        composer.dispatchEvent(new Event('input', { bubbles: true }));
+        composer.dispatchEvent(new Event('change', { bubbles: true }));
       }
       
       // Event triggering is now handled by insertFormattedText
