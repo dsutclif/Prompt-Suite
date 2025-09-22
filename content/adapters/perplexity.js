@@ -29,7 +29,7 @@ window.promptLibraryAdapter = {
     return null;
   },
 
-  async insert(text) {
+  async insert(text, append = true) {
     const composer = this.findComposer();
     if (!composer) {
       console.warn('Perplexity composer not found');
@@ -40,24 +40,25 @@ window.promptLibraryAdapter = {
       // Focus the composer
       composer.focus();
       
-      // Use enhanced formatting-preserving insertion with append
+      // Use proven read-then-insert approach for appending
+      let finalText = text;
+      if (append) {
+        try {
+          // Use the proven readCurrentInput method
+          const existingContent = await this.readCurrentInput();
+          if (existingContent && existingContent.trim()) {
+            finalText = existingContent.trimEnd() + '\n\n' + text;
+          }
+        } catch (error) {
+          console.log('Could not read existing content, inserting new text only:', error);
+        }
+      }
+      
+      // Use enhanced formatting-preserving insertion
       if (typeof insertFormattedText === 'function') {
-        await insertFormattedText(composer, text, true); // true = append mode
+        await insertFormattedText(composer, finalText, false); // false = replace mode since we pre-combined
       } else {
-        // Fallback to enhanced manual insertion with append
-        let existingContent = '';
-        if (composer.tagName === 'TEXTAREA') {
-          existingContent = composer.value || '';
-        } else {
-          existingContent = composer.textContent || composer.innerText || '';
-        }
-        
-        // Add separator if there's existing content
-        let finalText = text;
-        if (existingContent.trim()) {
-          finalText = existingContent.trimEnd() + '\n\n' + text;
-        }
-        
+        // Fallback to basic insertion
         if (composer.tagName === 'TEXTAREA') {
           // For textarea, preserve line breaks as \n
           composer.value = finalText;
@@ -242,13 +243,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
     return true; // Will respond asynchronously
   } else if (message.type === 'READ_CURRENT_INPUT' && window.promptLibraryAdapter) {
-    try {
-      const text = window.promptLibraryAdapter.readCurrentInput();
-      sendResponse({ success: true, text: text || '' });
-    } catch (error) {
-      console.error('Failed to read current input:', error);
-      sendResponse({ success: false, text: '', error: error.message });
-    }
+    window.promptLibraryAdapter.readCurrentInput()
+      .then(text => {
+        sendResponse({ success: true, text: text || '' });
+      })
+      .catch(error => {
+        console.error('Failed to read current input:', error);
+        sendResponse({ success: false, text: '', error: error.message });
+      });
     return true; // Will respond asynchronously
   } else if (message.type === 'SUBMIT_PROMPT' && window.promptLibraryAdapter) {
     try {
