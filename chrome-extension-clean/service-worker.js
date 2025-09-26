@@ -28,8 +28,16 @@ async function initializeStorage() {
     folderCount: data.folders ? data.folders.length : 0
   });
   
-  // Check if we need to initialize (no version OR no prompts)
-  if (!data.version || !data.prompts || Object.keys(data.prompts).length === 0) {
+  // Check if we need to initialize (no version OR no prompts OR empty prompts)
+  const needsInit = !data.version || 
+                   !data.prompts || 
+                   (typeof data.prompts === 'object' && Object.keys(data.prompts).length === 0) ||
+                   !data.folders ||
+                   (Array.isArray(data.folders) && data.folders.length === 0);
+  
+  console.log('🤔 Needs initialization?', needsInit);
+  
+  if (needsInit) {
     console.log('🔧 Initializing storage with default prompts...');
     console.log('📁 DEFAULT_FOLDERS:', DEFAULT_FOLDERS);
     console.log('📝 DEFAULT_PROMPTS:', DEFAULT_PROMPTS);

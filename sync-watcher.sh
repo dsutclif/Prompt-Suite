@@ -54,24 +54,21 @@ repackage() {
 
     # Create timestamped filename with MM-DD-YY_HH:MM format using Eastern time
     TIMESTAMP=$(get_eastern_time "timestamp")
-    echo "Debug: Using Eastern Time"
-    echo "Debug: Timestamp = $TIMESTAMP"
-
     NEW_FILENAME="chrome-extension-clean_${TIMESTAMP}.zip"
-    echo "Debug: Creating file = $NEW_FILENAME"
 
     # Create new zip (zip contents directly, not the folder)
-    echo "Creating ${NEW_FILENAME}..."
+    echo "Creating package..."
     (cd chrome-extension-clean && zip -r "../${NEW_FILENAME}" . -x "*.zip")
 
     if [ -f "$NEW_FILENAME" ]; then
-        echo "Package updated: $NEW_FILENAME"
+        echo "Package created successfully"
         echo "Size: $(ls -lh "$NEW_FILENAME" | awk '{print $5}')"
 
         # Move zip to client/public for web server access
         mkdir -p client/public
         mv "$NEW_FILENAME" client/public/
-        echo "Zip file moved to client/public/ for download access"
+        echo ""
+        echo "✅ Ready for download: $NEW_FILENAME"
         echo "Download URL: http://localhost:5000/${NEW_FILENAME}"
     else
         echo "Error creating zip package"
