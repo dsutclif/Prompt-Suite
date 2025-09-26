@@ -18,17 +18,32 @@ const storage = new Storage();
 
 // Initialize default data if needed
 async function initializeStorage() {
-  const data = await storage.get(['version']);
-  if (!data.version) {
+  console.log('🔍 Checking storage initialization...');
+  const data = await storage.get(['version', 'prompts', 'folders']);
+  console.log('📋 Current storage data:', { 
+    version: data.version, 
+    hasPrompts: !!data.prompts, 
+    promptCount: data.prompts ? Object.keys(data.prompts).length : 0,
+    hasFolders: !!data.folders,
+    folderCount: data.folders ? data.folders.length : 0
+  });
+  
+  // Check if we need to initialize (no version OR no prompts)
+  if (!data.version || !data.prompts || Object.keys(data.prompts).length === 0) {
     console.log('🔧 Initializing storage with default prompts...');
+    console.log('📁 DEFAULT_FOLDERS:', DEFAULT_FOLDERS);
+    console.log('📝 DEFAULT_PROMPTS:', DEFAULT_PROMPTS);
+    
     await storage.set({
-      version: 1,
+      version: 2, // Bump version to force re-init
       folders: DEFAULT_FOLDERS,
       prompts: DEFAULT_PROMPTS,
       recentPromptId: null,
       settings: {} // Include settings in initialization
     });
     console.log(`✅ Storage initialized with ${Object.keys(DEFAULT_PROMPTS).length} default prompts in ${DEFAULT_FOLDERS.length} folders`);
+  } else {
+    console.log('ℹ️ Storage already initialized, skipping defaults');
   }
 }
 
