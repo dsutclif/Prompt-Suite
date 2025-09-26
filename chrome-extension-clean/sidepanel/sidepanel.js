@@ -1,6 +1,17 @@
 // Side Panel JavaScript for Prompt Suite Extension
 console.log('🟢 SIDEPANEL JAVASCRIPT LOADING...');
 
+// SIMPLE TEST - Check if basic JavaScript works
+try {
+  console.log('🟢 BASIC JS TEST PASSED');
+  document.body.style.backgroundColor = 'red'; // Visual indicator
+  setTimeout(() => {
+    document.body.style.backgroundColor = ''; // Reset
+  }, 1000);
+} catch (error) {
+  console.error('❌ BASIC JS TEST FAILED:', error);
+}
+
 class PromptLibrarySidePanel {
   constructor() {
     console.log('🟢 SIDEPANEL CONSTRUCTOR CALLED');
