@@ -1,5 +1,8 @@
 console.log('🔥 SERVICE WORKER LOADED');
 
+// Import default prompts from generated file
+import { DEFAULT_FOLDERS, DEFAULT_PROMPTS } from './lib/default-prompts.js';
+
 // Basic storage helper
 class Storage {
   async get(keys) {
@@ -17,15 +20,15 @@ const storage = new Storage();
 async function initializeStorage() {
   const data = await storage.get(['version']);
   if (!data.version) {
-    console.log('🔧 Initializing storage for first time...');
+    console.log('🔧 Initializing storage with default prompts...');
     await storage.set({
       version: 1,
-      folders: [], // No default folders - clean start
-      prompts: {},
+      folders: DEFAULT_FOLDERS,
+      prompts: DEFAULT_PROMPTS,
       recentPromptId: null,
       settings: {} // Include settings in initialization
     });
-    console.log('✅ Storage initialized');
+    console.log(`✅ Storage initialized with ${Object.keys(DEFAULT_PROMPTS).length} default prompts in ${DEFAULT_FOLDERS.length} folders`);
   }
 }
 
