@@ -55,9 +55,20 @@ export const DEFAULT_FOLDERS = ${JSON.stringify(folders, null, 2)};
 export const DEFAULT_PROMPTS = ${JSON.stringify(prompts, null, 2)};
 `;
   
+  // Write to both locations
   const outputPath = path.join(projectRoot, 'lib', 'default-prompts.js');
+  const extensionOutputPath = path.join(projectRoot, 'chrome-extension-clean', 'lib', 'default-prompts.js');
+  
+  // Ensure lib directory exists in both locations
+  const libDir = path.dirname(outputPath);
+  const extensionLibDir = path.dirname(extensionOutputPath);
+  if (!fs.existsSync(libDir)) fs.mkdirSync(libDir, { recursive: true });
+  if (!fs.existsSync(extensionLibDir)) fs.mkdirSync(extensionLibDir, { recursive: true });
+  
   fs.writeFileSync(outputPath, output);
+  fs.writeFileSync(extensionOutputPath, output);
   console.log(`✅ Generated lib/default-prompts.js with ${Object.keys(prompts).length} prompts in ${folders.length} folders`);
+  console.log(`✅ Copied to chrome-extension-clean/lib/default-prompts.js`);
 }
 
 function parsePromptFile(content, filename, folderId) {
