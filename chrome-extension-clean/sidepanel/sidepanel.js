@@ -1973,11 +1973,27 @@ class PromptLibrarySidePanel {
 console.log('🟢 SIDEPANEL SCRIPT LOADED, WAITING FOR DOM...');
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🟢 DOM LOADED, CREATING SIDEPANEL INSTANCE...');
-  window.promptLibrary = new PromptLibrarySidePanel();
-  console.log('🟢 SIDEPANEL INSTANCE CREATED');
   
-  // Add Prompt Suite aliases for rebranding
-  window.PromptSuiteSidePanel = PromptLibrarySidePanel;
-  window.promptSuite = window.promptLibrary;
-  console.log('🟢 SIDEPANEL FULLY INITIALIZED');
+  try {
+    window.promptLibrary = new PromptLibrarySidePanel();
+    console.log('🟢 SIDEPANEL INSTANCE CREATED');
+    
+    // Add Prompt Suite aliases for rebranding
+    window.PromptSuiteSidePanel = PromptLibrarySidePanel;
+    window.promptSuite = window.promptLibrary;
+    console.log('🟢 SIDEPANEL FULLY INITIALIZED');
+  } catch (error) {
+    console.error('❌ CRITICAL ERROR CREATING SIDEPANEL:', error);
+    console.error('❌ ERROR STACK:', error.stack);
+    
+    // Show error in UI
+    document.body.innerHTML = `
+      <div style="padding: 20px; color: red; font-family: monospace;">
+        <h3>Extension Error</h3>
+        <p><strong>Error:</strong> ${error.message}</p>
+        <p><strong>Stack:</strong></p>
+        <pre>${error.stack}</pre>
+      </div>
+    `;
+  }
 });
