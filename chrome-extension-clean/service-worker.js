@@ -1,7 +1,7 @@
 console.log('🔥 SERVICE WORKER LOADED');
 
 // Import default prompts from generated file
-import { DEFAULT_FOLDERS, DEFAULT_PROMPTS } from '../lib/default-prompts.js';
+import { DEFAULT_FOLDERS, DEFAULT_PROMPTS } from './lib/default-prompts.js';
 
 // Basic storage helper
 class Storage {
