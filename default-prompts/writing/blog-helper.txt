@@ -1,0 +1,14 @@
+---
+title: Blog Post Helper
+tags: writing, blog, content
+---
+Help me write a blog post about [TOPIC]:
+
+1. Create an engaging title
+2. Write an introduction that hooks readers
+3. Outline 3-5 main points
+4. Suggest a compelling conclusion
+5. Recommend relevant tags and categories
+
+Target audience: [AUDIENCE]
+Tone: [TONE - professional/casual/technical]

@@ -1,0 +1,5 @@
+---
+title: Professional Email Writer
+tags: email, business, communication
+---
+Write a professional email for [PURPOSE] to [RECIPIENT]. Keep it [TONE] and include [KEY POINTS].
