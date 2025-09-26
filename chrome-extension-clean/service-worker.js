@@ -42,11 +42,7 @@ async function initializeStorage() {
   
   console.log('🤔 Needs initialization?', needsInit);
   
-  // FORCE initialization for testing (remove this later)
-  const FORCE_INIT = true;
-  console.log('🚨 FORCE INIT ENABLED - Will override existing data');
-  
-  if (needsInit || FORCE_INIT) {
+  if (needsInit) {
     console.log('🔧 Initializing storage with default prompts...');
     console.log('📁 DEFAULT_FOLDERS:', DEFAULT_FOLDERS);
     console.log('📝 DEFAULT_PROMPTS:', DEFAULT_PROMPTS);
