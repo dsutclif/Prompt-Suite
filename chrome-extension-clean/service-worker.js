@@ -47,14 +47,28 @@ async function initializeStorage() {
     console.log('📁 DEFAULT_FOLDERS:', DEFAULT_FOLDERS);
     console.log('📝 DEFAULT_PROMPTS:', DEFAULT_PROMPTS);
     
-    await storage.set({
-      version: 2, // Bump version to force re-init
-      folders: DEFAULT_FOLDERS,
-      prompts: DEFAULT_PROMPTS,
-      recentPromptId: null,
-      settings: {} // Include settings in initialization
-    });
-    console.log(`✅ Storage initialized with ${Object.keys(DEFAULT_PROMPTS).length} default prompts in ${DEFAULT_FOLDERS.length} folders`);
+    try {
+      await storage.set({
+        version: 2, // Bump version to force re-init
+        folders: DEFAULT_FOLDERS,
+        prompts: DEFAULT_PROMPTS,
+        recentPromptId: null,
+        settings: {} // Include settings in initialization
+      });
+      console.log(`✅ Storage initialized with ${Object.keys(DEFAULT_PROMPTS).length} default prompts in ${DEFAULT_FOLDERS.length} folders`);
+      
+      // VERIFY the data was actually saved
+      const verification = await storage.get(['folders', 'prompts', 'version']);
+      console.log('🔍 VERIFICATION - Data actually saved:', {
+        version: verification.version,
+        folders: verification.folders ? verification.folders.length : 'undefined',
+        prompts: verification.prompts ? Object.keys(verification.prompts).length : 'undefined'
+      });
+      console.log('🔍 VERIFICATION - Actual folder data:', verification.folders);
+      console.log('🔍 VERIFICATION - Actual prompt data:', verification.prompts);
+    } catch (error) {
+      console.error('❌ FAILED TO SAVE TO STORAGE:', error);
+    }
   } else {
     console.log('ℹ️ Storage already initialized, skipping defaults');
   }
