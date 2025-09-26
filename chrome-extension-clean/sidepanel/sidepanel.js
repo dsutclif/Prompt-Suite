@@ -1,7 +1,9 @@
 // Side Panel JavaScript for Prompt Suite Extension
+console.log('🟢 SIDEPANEL JAVASCRIPT LOADING...');
 
 class PromptLibrarySidePanel {
   constructor() {
+    console.log('🟢 SIDEPANEL CONSTRUCTOR CALLED');
     this.libraryData = {
       folders: [],
       prompts: {},
@@ -16,19 +18,33 @@ class PromptLibrarySidePanel {
   }
 
   async init() {
-    await this.loadLibraryData();
-    this.setupEventListeners();
-    this.setupImageSources();
-    this.setupDataUpdateListener(); // Listen for external updates
-    
-    this.renderLibrary();
-    this.checkForAutoLLMModal();
-    
-    // Simple permission check on load
-    await this.checkAndShowBanner();
-    
-    // Set up direct tab navigation detection
-    this.setupNavigationDetection();
+    console.log('🟢 INIT() STARTING...');
+    try {
+      console.log('🟢 CALLING loadLibraryData()...');
+      await this.loadLibraryData();
+      console.log('🟢 loadLibraryData() COMPLETED');
+      
+      console.log('🟢 SETTING UP EVENT LISTENERS...');
+      this.setupEventListeners();
+      this.setupImageSources();
+      this.setupDataUpdateListener(); // Listen for external updates
+      
+      console.log('🟢 CALLING renderLibrary()...');
+      this.renderLibrary();
+      console.log('🟢 renderLibrary() COMPLETED');
+      
+      this.checkForAutoLLMModal();
+      
+      // Simple permission check on load
+      await this.checkAndShowBanner();
+      
+      // Set up direct tab navigation detection
+      this.setupNavigationDetection();
+      
+      console.log('🟢 INIT() COMPLETED SUCCESSFULLY');
+    } catch (error) {
+      console.error('❌ ERROR IN INIT():', error);
+    }
   }
 
   setupDataUpdateListener() {
@@ -1943,10 +1959,14 @@ class PromptLibrarySidePanel {
 }
 
 // Initialize when DOM is loaded
+console.log('🟢 SIDEPANEL SCRIPT LOADED, WAITING FOR DOM...');
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🟢 DOM LOADED, CREATING SIDEPANEL INSTANCE...');
   window.promptLibrary = new PromptLibrarySidePanel();
+  console.log('🟢 SIDEPANEL INSTANCE CREATED');
   
   // Add Prompt Suite aliases for rebranding
   window.PromptSuiteSidePanel = PromptLibrarySidePanel;
   window.promptSuite = window.promptLibrary;
+  console.log('🟢 SIDEPANEL FULLY INITIALIZED');
 });
