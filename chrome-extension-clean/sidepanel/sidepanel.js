@@ -1,16 +1,25 @@
 // Side Panel JavaScript for Prompt Suite Extension
-console.log('🟢 SIDEPANEL JAVASCRIPT LOADING...');
+console.log('MINIMAL TEST START');
 
-// SIMPLE TEST - Check if basic JavaScript works
-try {
-  console.log('🟢 BASIC JS TEST PASSED');
-  document.body.style.backgroundColor = 'red'; // Visual indicator
-  setTimeout(() => {
-    document.body.style.backgroundColor = ''; // Reset
-  }, 1000);
-} catch (error) {
-  console.error('❌ BASIC JS TEST FAILED:', error);
-}
+// ABSOLUTE MINIMUM TEST
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM LOADED - MINIMAL TEST');
+  
+  // Show data in UI immediately
+  const content = document.getElementById('library-content');
+  if (content) {
+    content.innerHTML = `
+      <div style="padding: 20px;">
+        <h3>Minimal Test Working</h3>
+        <p>If you see this, JavaScript is loading!</p>
+        <p>Storage has data - now loading...</p>
+      </div>
+    `;
+    console.log('HTML UPDATED - MINIMAL TEST SUCCESS');
+  }
+});
+
+console.log('MINIMAL TEST END');
 
 class PromptLibrarySidePanel {
   constructor() {
