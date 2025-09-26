@@ -67,9 +67,55 @@ repackage() {
         # Move zip to client/public for web server access
         mkdir -p client/public
         mv "$NEW_FILENAME" client/public/
-        echo ""
-        echo "✅ Ready for download: $NEW_FILENAME"
-        echo "Download URL: http://localhost:5000/${NEW_FILENAME}"
+
+        # Force filesystem sync to ensure file is fully written
+        sync
+
+        # Verify the file was moved successfully
+        if [ -f "client/public/$NEW_FILENAME" ]; then
+            echo ""
+            echo "File moved to client/public/$NEW_FILENAME"
+            echo "File size: $(ls -lh "client/public/$NEW_FILENAME" | awk '{print $5}')"
+
+            # Check if curl is available for testing
+            if command -v curl &> /dev/null; then
+                echo "Testing download availability..."
+
+                DOWNLOAD_URL="http://localhost:5000/${NEW_FILENAME}"
+                MAX_ATTEMPTS=15
+                ATTEMPT=1
+
+                while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+                    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$DOWNLOAD_URL")
+                    echo "Attempt $ATTEMPT/$MAX_ATTEMPTS - HTTP Status: $HTTP_STATUS"
+
+                    if [ "$HTTP_STATUS" = "200" ]; then
+                        echo "✅ Ready for download: $NEW_FILENAME"
+                        echo "Download URL: $DOWNLOAD_URL"
+                        break
+                    else
+                        sleep 2
+                        ATTEMPT=$((ATTEMPT + 1))
+                    fi
+                done
+
+                if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+                    echo "⚠️  File created but server still not responding properly"
+                    echo "File exists at: client/public/$NEW_FILENAME"
+                    echo "Try waiting a bit longer, then: $DOWNLOAD_URL"
+                fi
+            else
+                echo "curl not available - cannot test download"
+                echo "Waiting 5 seconds for server to recognize file..."
+                sleep 5
+                echo "✅ File should be ready: $NEW_FILENAME"
+                echo "Download URL: http://localhost:5000/${NEW_FILENAME}"
+            fi
+        else
+            echo "❌ Error: File was not moved to client/public/"
+            echo "Looking for file..."
+            find . -name "$NEW_FILENAME" -type f
+        fi
     else
         echo "Error creating zip package"
     fi

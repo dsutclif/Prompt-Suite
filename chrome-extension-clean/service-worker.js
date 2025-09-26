@@ -28,6 +28,11 @@ async function initializeStorage() {
     folderCount: data.folders ? data.folders.length : 0
   });
   
+  // Show actual storage contents for debugging
+  console.log('🔍 ACTUAL STORAGE CONTENTS:');
+  console.log('📁 data.folders:', data.folders);
+  console.log('📝 data.prompts:', data.prompts);
+  
   // Check if we need to initialize (no version OR no prompts OR empty prompts)
   const needsInit = !data.version || 
                    !data.prompts || 
@@ -37,7 +42,11 @@ async function initializeStorage() {
   
   console.log('🤔 Needs initialization?', needsInit);
   
-  if (needsInit) {
+  // FORCE initialization for testing (remove this later)
+  const FORCE_INIT = true;
+  console.log('🚨 FORCE INIT ENABLED - Will override existing data');
+  
+  if (needsInit || FORCE_INIT) {
     console.log('🔧 Initializing storage with default prompts...');
     console.log('📁 DEFAULT_FOLDERS:', DEFAULT_FOLDERS);
     console.log('📝 DEFAULT_PROMPTS:', DEFAULT_PROMPTS);
