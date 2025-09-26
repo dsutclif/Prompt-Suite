@@ -422,6 +422,11 @@ class PromptLibrarySidePanel {
         settings: this.libraryData.settings
       });
       
+      // DEBUG: Show actual contents
+      console.log('🔍 DEBUG - ACTUAL FOLDERS:', this.libraryData.folders);
+      console.log('🔍 DEBUG - ACTUAL PROMPTS:', this.libraryData.prompts);
+      console.log('🔍 DEBUG - RAW RESPONSE:', response);
+      
     } catch (error) {
       console.error('Error loading library data:', error);
       // Initialize with empty data on error - NO sample data
