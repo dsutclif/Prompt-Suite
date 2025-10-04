@@ -1,7 +1,29 @@
 // Side Panel JavaScript for Prompt Suite Extension
+console.log('MINIMAL TEST START');
+
+// ABSOLUTE MINIMUM TEST
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM LOADED - MINIMAL TEST');
+  
+  // Show data in UI immediately
+  const content = document.getElementById('library-content');
+  if (content) {
+    content.innerHTML = `
+      <div style="padding: 20px;">
+        <h3>Minimal Test Working</h3>
+        <p>If you see this, JavaScript is loading!</p>
+        <p>Storage has data - now loading...</p>
+      </div>
+    `;
+    console.log('HTML UPDATED - MINIMAL TEST SUCCESS');
+  }
+});
+
+console.log('MINIMAL TEST END');
 
 class PromptLibrarySidePanel {
   constructor() {
+    console.log('🟢 SIDEPANEL CONSTRUCTOR CALLED');
     this.libraryData = {
       folders: [],
       prompts: {},
@@ -16,19 +38,33 @@ class PromptLibrarySidePanel {
   }
 
   async init() {
-    await this.loadLibraryData();
-    this.setupEventListeners();
-    this.setupImageSources();
-    this.setupDataUpdateListener(); // Listen for external updates
-    
-    this.renderLibrary();
-    this.checkForAutoLLMModal();
-    
-    // Simple permission check on load
-    await this.checkAndShowBanner();
-    
-    // Set up direct tab navigation detection
-    this.setupNavigationDetection();
+    console.log('🟢 INIT() STARTING...');
+    try {
+      console.log('🟢 CALLING loadLibraryData()...');
+      await this.loadLibraryData();
+      console.log('🟢 loadLibraryData() COMPLETED');
+      
+      console.log('🟢 SETTING UP EVENT LISTENERS...');
+      this.setupEventListeners();
+      this.setupImageSources();
+      this.setupDataUpdateListener(); // Listen for external updates
+      
+      console.log('🟢 CALLING renderLibrary()...');
+      this.renderLibrary();
+      console.log('🟢 renderLibrary() COMPLETED');
+      
+      this.checkForAutoLLMModal();
+      
+      // Simple permission check on load
+      await this.checkAndShowBanner();
+      
+      // Set up direct tab navigation detection
+      this.setupNavigationDetection();
+      
+      console.log('🟢 INIT() COMPLETED SUCCESSFULLY');
+    } catch (error) {
+      console.error('❌ ERROR IN INIT():', error);
+    }
   }
 
   setupDataUpdateListener() {
@@ -421,6 +457,11 @@ class PromptLibrarySidePanel {
         prompts: Object.keys(this.libraryData.prompts).length,
         settings: this.libraryData.settings
       });
+      
+      // DEBUG: Show actual contents
+      console.log('🔍 DEBUG - ACTUAL FOLDERS:', this.libraryData.folders);
+      console.log('🔍 DEBUG - ACTUAL PROMPTS:', this.libraryData.prompts);
+      console.log('🔍 DEBUG - RAW RESPONSE:', response);
       
     } catch (error) {
       console.error('Error loading library data:', error);
@@ -1938,10 +1979,30 @@ class PromptLibrarySidePanel {
 }
 
 // Initialize when DOM is loaded
+console.log('🟢 SIDEPANEL SCRIPT LOADED, WAITING FOR DOM...');
 document.addEventListener('DOMContentLoaded', () => {
-  window.promptLibrary = new PromptLibrarySidePanel();
+  console.log('🟢 DOM LOADED, CREATING SIDEPANEL INSTANCE...');
   
-  // Add Prompt Suite aliases for rebranding
-  window.PromptSuiteSidePanel = PromptLibrarySidePanel;
-  window.promptSuite = window.promptLibrary;
+  try {
+    window.promptLibrary = new PromptLibrarySidePanel();
+    console.log('🟢 SIDEPANEL INSTANCE CREATED');
+    
+    // Add Prompt Suite aliases for rebranding
+    window.PromptSuiteSidePanel = PromptLibrarySidePanel;
+    window.promptSuite = window.promptLibrary;
+    console.log('🟢 SIDEPANEL FULLY INITIALIZED');
+  } catch (error) {
+    console.error('❌ CRITICAL ERROR CREATING SIDEPANEL:', error);
+    console.error('❌ ERROR STACK:', error.stack);
+    
+    // Show error in UI
+    document.body.innerHTML = `
+      <div style="padding: 20px; color: red; font-family: monospace;">
+        <h3>Extension Error</h3>
+        <p><strong>Error:</strong> ${error.message}</p>
+        <p><strong>Stack:</strong></p>
+        <pre>${error.stack}</pre>
+      </div>
+    `;
+  }
 });

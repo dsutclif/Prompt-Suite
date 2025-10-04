@@ -18,17 +18,59 @@ const storage = new Storage();
 
 // Initialize default data if needed
 async function initializeStorage() {
-  const data = await storage.get(['version']);
-  if (!data.version) {
+  console.log('🔍 Checking storage initialization...');
+  const data = await storage.get(['version', 'prompts', 'folders']);
+  console.log('📋 Current storage data:', { 
+    version: data.version, 
+    hasPrompts: !!data.prompts, 
+    promptCount: data.prompts ? Object.keys(data.prompts).length : 0,
+    hasFolders: !!data.folders,
+    folderCount: data.folders ? data.folders.length : 0
+  });
+  
+  // Show actual storage contents for debugging
+  console.log('🔍 ACTUAL STORAGE CONTENTS:');
+  console.log('📁 data.folders:', data.folders);
+  console.log('📝 data.prompts:', data.prompts);
+  
+  // Check if we need to initialize (no version OR no prompts OR empty prompts)
+  const needsInit = !data.version || 
+                   !data.prompts || 
+                   (typeof data.prompts === 'object' && Object.keys(data.prompts).length === 0) ||
+                   !data.folders ||
+                   (Array.isArray(data.folders) && data.folders.length === 0);
+  
+  console.log('🤔 Needs initialization?', needsInit);
+  
+  if (needsInit) {
     console.log('🔧 Initializing storage with default prompts...');
-    await storage.set({
-      version: 1,
-      folders: DEFAULT_FOLDERS,
-      prompts: DEFAULT_PROMPTS,
-      recentPromptId: null,
-      settings: {} // Include settings in initialization
-    });
-    console.log(`✅ Storage initialized with ${Object.keys(DEFAULT_PROMPTS).length} default prompts in ${DEFAULT_FOLDERS.length} folders`);
+    console.log('📁 DEFAULT_FOLDERS:', DEFAULT_FOLDERS);
+    console.log('📝 DEFAULT_PROMPTS:', DEFAULT_PROMPTS);
+    
+    try {
+      await storage.set({
+        version: 2, // Bump version to force re-init
+        folders: DEFAULT_FOLDERS,
+        prompts: DEFAULT_PROMPTS,
+        recentPromptId: null,
+        settings: {} // Include settings in initialization
+      });
+      console.log(`✅ Storage initialized with ${Object.keys(DEFAULT_PROMPTS).length} default prompts in ${DEFAULT_FOLDERS.length} folders`);
+      
+      // VERIFY the data was actually saved
+      const verification = await storage.get(['folders', 'prompts', 'version']);
+      console.log('🔍 VERIFICATION - Data actually saved:', {
+        version: verification.version,
+        folders: verification.folders ? verification.folders.length : 'undefined',
+        prompts: verification.prompts ? Object.keys(verification.prompts).length : 'undefined'
+      });
+      console.log('🔍 VERIFICATION - Actual folder data:', verification.folders);
+      console.log('🔍 VERIFICATION - Actual prompt data:', verification.prompts);
+    } catch (error) {
+      console.error('❌ FAILED TO SAVE TO STORAGE:', error);
+    }
+  } else {
+    console.log('ℹ️ Storage already initialized, skipping defaults');
   }
 }
 
