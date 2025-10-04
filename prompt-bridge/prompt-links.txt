@@ -7,7 +7,7 @@ https://dsutclif.github.io/Prompt-Suite/index.html?id=blog-helper
 https://dsutclif.github.io/Prompt-Suite/index.html?id=meeting-notes
 https://dsutclif.github.io/Prompt-Suite/index.html?id=hello-world
 https://dsutclif.github.io/Prompt-Suite/index.html?id=expert-prompt-framework-v1-0
-https://dsutclif.github.io/Prompt-Suite/index.html?id=linkedin-post-creator-v1-0
+https://dsutclif.github.io/Prompt-Suite/index.html?id=linkedin-post-creator
 
 ## Development Links (Unpacked Extension)
 https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=email-writer
@@ -16,4 +16,4 @@ https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=blog-helper
 https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=meeting-notes
 https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=hello-world
 https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=expert-prompt-framework-v1-0
-https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=linkedin-post-creator-v1-0
+https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=linkedin-post-creator
