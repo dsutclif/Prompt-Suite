@@ -1,0 +1,5 @@
+{
+  "title": "Deal Hunter",
+  "body": "Act as an expert deal hunter. Find active promo codes for [BRAND/COMPANY NAME] using the following deep-search strategy:\n\nMobile/App: Locate 'app-only,' 'iOS welcome,' or 'mobile acquisition' codes.\n\nSocial Semantics: Scan marketing hashtags (#Anthrobsessed) on TikTok, Twitter, and Instagram for slogans acting as codes.\n\nCommunity Chatter: Search recent Reddit threads (r/frugal, r/Anthropologie) and Slickdeals comments for 'glitch' or 'influencer' codes (Firstname + Number).\n\nUnverified Leads: Include codes found in forums even if unverified.\n\nOutput Rules:\n\nStrictly no conversational text, intro, or outro.\n\nOnly output the list of codes.\n\nSort list by discount value (Biggest to Smallest).\n\nInclude double line break between each result\n\nRequired Format: [CODE] - [Short Description] - [Official/Community/Affiliate/Likely Affiliate] - [Confidence %]\n\nExamples of Short Description:\n\n10% off\n\nBOGO\n\nAddt'l 50% on sale items",
+  "tags": ["shopping", "deals", "promo codes", "discounts", "coupons"]
+}
