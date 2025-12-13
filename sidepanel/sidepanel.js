@@ -416,6 +416,9 @@ class PromptLibrarySidePanel {
         };
       }
       
+      // Initialize sort orders for folders that don't have them
+      this.initializeSortOrders();
+
       console.log('📚 Library data loaded:', {
         folders: this.libraryData.folders.length,
         prompts: Object.keys(this.libraryData.prompts).length,
@@ -494,15 +497,21 @@ class PromptLibrarySidePanel {
 
   renderLibrary() {
     const content = document.getElementById('library-content');
-    const rootFolders = this.libraryData.folders?.filter(f => !f.parentId) || [];
+    const rootFolders = (this.libraryData.folders?.filter(f => !f.parentId) || [])
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
     const rootPrompts = Object.values(this.libraryData.prompts || {}).filter(p => !p.folderId);
 
     let html = '';
-    
+
     // Root folders FIRST
     rootFolders.forEach(folder => {
       html += this.renderFolder(folder);
     });
+
+    // Add final drop indicator for root level
+    if (rootFolders.length > 0) {
+      html += '<div class="drop-indicator" data-drop-after="root"></div>';
+    }
 
     // Root prompts (prompts without a folder)
     if (rootPrompts.length > 0) {
@@ -542,13 +551,22 @@ class PromptLibrarySidePanel {
   renderFolder(folder) {
     const isExpanded = this.expandedFolders.has(folder.id);
     const isSelected = this.selectedFolderId === folder.id;
-    const childFolders = this.libraryData.folders?.filter(f => f.parentId === folder.id) || [];
+    const childFolders = (this.libraryData.folders?.filter(f => f.parentId === folder.id) || [])
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
     const folderPrompts = Object.values(this.libraryData.prompts || {}).filter(p => p.folderId === folder.id);
     const totalItems = childFolders.length + folderPrompts.length;
 
     let html = `
-      <div class="folder-item ${isSelected ? 'selected' : ''}" data-folder-id="${folder.id}">
+      <div class="drop-indicator" data-drop-before="${folder.id}"></div>
+      <div class="folder-item ${isSelected ? 'selected' : ''}"
+           data-folder-id="${folder.id}"
+           data-sort-order="${folder.sortOrder || 0}">
         <div class="folder-container">
+          <div class="drag-handle" draggable="true" data-folder-id="${folder.id}" title="Drag to reorder">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.5;">
+              <path d="M9 4h2v2H9V4zm4 0h2v2h-2V4zM9 8h2v2H9V8zm4 0h2v2h-2V8zm-4 4h2v2H9v-2zm4 0h2v2h-2v-2zm-4 4h2v2H9v-2zm4 0h2v2h-2v-2z"/>
+            </svg>
+          </div>
           <button class="delete-folder-btn" data-action="delete-folder" data-folder-id="${folder.id}" title="Delete folder">🗑️</button>
           <button class="folder-button" data-action="toggle-folder" data-folder-id="${folder.id}">
             <svg class="disclosure-triangle ${isExpanded ? 'expanded' : ''}" viewBox="0 0 24 24" fill="currentColor">
@@ -568,11 +586,16 @@ class PromptLibrarySidePanel {
 
     if (isExpanded) {
       html += '<div class="folder-contents">';
-      
+
       // Child folders
       childFolders.forEach(childFolder => {
         html += this.renderFolder(childFolder);
       });
+
+      // Add final drop indicator for child folders
+      if (childFolders.length > 0) {
+        html += `<div class="drop-indicator" data-drop-after="${folder.id}"></div>`;
+      }
 
       // Folder prompts
       folderPrompts.forEach(prompt => {
@@ -731,6 +754,29 @@ class PromptLibrarySidePanel {
         const folderId = e.target.closest('.folder-item').dataset.folderId;
         this.startFolderEdit(folderId, nameElement);
       });
+    });
+
+    // Drag and drop for folders - attach to drag handles
+    const dragHandles = document.querySelectorAll('.drag-handle[draggable="true"]');
+    console.log('🔧 Setting up drag listeners for', dragHandles.length, 'drag handles');
+
+    dragHandles.forEach((handle, index) => {
+      const folderId = handle.dataset.folderId;
+      console.log(`🔧 Adding listeners to drag handle ${index}:`, folderId);
+      handle.addEventListener('dragstart', (e) => this.handleDragStart(e));
+      handle.addEventListener('dragend', (e) => this.handleDragEnd(e));
+    });
+
+    // Set up dragover and drop on the main container to handle real-time preview
+    const libraryContent = document.getElementById('library-content');
+    if (libraryContent) {
+      libraryContent.addEventListener('dragover', (e) => this.handleDragOver(e));
+      libraryContent.addEventListener('drop', (e) => this.handleDrop(e));
+    }
+
+    // Set up dragenter on folder items for position detection
+    document.querySelectorAll('.folder-item').forEach(item => {
+      item.addEventListener('dragenter', (e) => this.handleDragEnter(e));
     });
 
     // Prompt usage
@@ -1114,12 +1160,19 @@ class PromptLibrarySidePanel {
 
   createFolder(name) {
     const folderId = 'fld_' + Date.now();
+
+    // Calculate sort order for the new folder
+    const siblingFolders = this.libraryData.folders?.filter(f => f.parentId === this.selectedFolderId) || [];
+    const maxSortOrder = siblingFolders.reduce((max, folder) =>
+      Math.max(max, folder.sortOrder || 0), -1);
+
     const newFolder = {
       id: folderId,
       name: name,
       parentId: this.selectedFolderId,
       childFolderIds: [],
-      promptIds: []
+      promptIds: [],
+      sortOrder: maxSortOrder + 1
     };
 
     if (!this.libraryData.folders) this.libraryData.folders = [];
@@ -1935,6 +1988,351 @@ class PromptLibrarySidePanel {
       </div>
     `;
   }
+
+  // Initialize sort orders for existing folders
+  initializeSortOrders() {
+    const folders = this.libraryData.folders || [];
+    let hasChanges = false;
+
+    // Group folders by parent ID
+    const foldersByParent = {};
+    folders.forEach(folder => {
+      const parentId = folder.parentId || 'root';
+      if (!foldersByParent[parentId]) {
+        foldersByParent[parentId] = [];
+      }
+      foldersByParent[parentId].push(folder);
+    });
+
+    // Assign sort orders to folders that don't have them
+    Object.values(foldersByParent).forEach(siblingFolders => {
+      siblingFolders.forEach((folder, index) => {
+        if (typeof folder.sortOrder !== 'number') {
+          folder.sortOrder = index;
+          hasChanges = true;
+        }
+      });
+    });
+
+    // Save changes if any were made
+    if (hasChanges) {
+      this.saveLibraryData();
+    }
+  }
+
+  // Drag and Drop Methods
+  handleDragStart(e) {
+    console.log('🎯 DragStart triggered from drag handle!', {
+      target: e.target,
+      currentTarget: e.currentTarget,
+    });
+
+    // Get the drag handle (currentTarget) and find the parent folder item
+    const dragHandle = e.currentTarget;
+    const folderId = dragHandle.dataset.folderId;
+    const folderItem = dragHandle.closest('.folder-item');
+
+    if (!folderItem || !folderId) {
+      console.log('❌ Could not find folder item or ID');
+      e.preventDefault();
+      return false;
+    }
+
+    console.log('✅ Drag starting for folder:', folderId);
+
+    e.dataTransfer.setData('text/plain', folderId);
+    e.dataTransfer.effectAllowed = 'move';
+
+    // Add visual feedback to the folder item
+    folderItem.classList.add('dragging');
+
+    // Store reference for cleanup
+    this.draggedFolderId = folderId;
+    this.draggedElement = folderItem;
+  }
+
+  handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+
+    // Update preview position based on mouse location
+    this.updatePreviewPosition(e);
+  }
+
+  handleDragEnter(e) {
+    e.preventDefault();
+    const folderItem = e.currentTarget;
+
+    if (folderItem.classList.contains('folder-item') &&
+        folderItem.dataset.folderId !== this.draggedFolderId &&
+        !this.isDescendantOf(folderItem.dataset.folderId, this.draggedFolderId)) {
+
+      // Calculate drop position based on mouse position within the folder item
+      const rect = folderItem.getBoundingClientRect();
+      const mouseY = e.clientY;
+      const midPoint = rect.top + rect.height / 2;
+
+      this.updatePreviewForTarget(folderItem.dataset.folderId, mouseY < midPoint);
+    }
+  }
+
+  handleDragLeave(e) {
+    // We'll handle this in dragover to avoid flicker
+  }
+
+  handleDrop(e) {
+    e.preventDefault();
+
+    if (this.currentPreviewPosition) {
+      // Apply the preview position as the final position
+      this.applyFinalPosition();
+    } else {
+      // Fallback to original position
+      this.restoreOriginalPosition();
+    }
+  }
+
+  handleDragEnd(e) {
+    console.log('🎯 DragEnd triggered');
+
+    // Remove visual feedback from the folder item
+    if (this.draggedElement) {
+      this.draggedElement.classList.remove('dragging');
+    }
+
+    // Clean up all drag-related state
+    if (this.cleanupDragState) {
+      this.cleanupDragState();
+    }
+
+    // Reset drag properties
+    this.draggedFolderId = null;
+    this.draggedElement = null;
+    this.originalPosition = null;
+    this.currentPreviewPosition = null;
+    this.originalFolderData = null;
+  }
+
+  isDescendantOf(childId, parentId) {
+    const folders = this.libraryData.folders || [];
+    let currentFolder = folders.find(f => f.id === childId);
+
+    while (currentFolder && currentFolder.parentId) {
+      if (currentFolder.parentId === parentId) {
+        return true;
+      }
+      currentFolder = folders.find(f => f.id === currentFolder.parentId);
+    }
+    return false;
+  }
+
+  // Real-time drag preview methods
+  getFolderPosition(folderId) {
+    const folders = this.libraryData.folders || [];
+    const folder = folders.find(f => f.id === folderId);
+    if (!folder) return null;
+
+    const parentId = folder.parentId;
+    const siblings = folders.filter(f => f.parentId === parentId);
+    const sortedSiblings = siblings.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
+    return {
+      parentId,
+      index: sortedSiblings.findIndex(f => f.id === folderId),
+      total: sortedSiblings.length
+    };
+  }
+
+  createDragPlaceholder() {
+    // Create invisible placeholder to maintain space
+    const placeholder = this.draggedElement.cloneNode(true);
+    placeholder.classList.remove('dragging');
+    placeholder.classList.add('drag-placeholder');
+    placeholder.style.visibility = 'hidden';
+    placeholder.style.pointerEvents = 'none';
+
+    this.draggedElement.parentNode.insertBefore(placeholder, this.draggedElement.nextSibling);
+    this.dragPlaceholder = placeholder;
+  }
+
+  startRealTimePreview() {
+    // Set up mouse tracking for smooth preview updates
+    this.isPreviewActive = true;
+  }
+
+  updatePreviewPosition(e) {
+    if (!this.isPreviewActive) return;
+
+    // Throttle updates to prevent performance issues
+    if (this.updateThrottle) return;
+    this.updateThrottle = true;
+    setTimeout(() => { this.updateThrottle = false; }, 50);
+
+    // Get all visible folder items excluding the dragged one
+    const allFolders = document.querySelectorAll('.folder-item');
+    const siblingFolders = Array.from(allFolders).filter(item => {
+      return item.dataset.folderId !== this.draggedFolderId &&
+             item.style.display !== 'none' &&
+             !item.classList.contains('drag-placeholder');
+    });
+
+    if (siblingFolders.length === 0) return;
+
+    const mouseY = e.clientY;
+
+    // Check if we should insert at the very beginning (with extra buffer zone)
+    const firstFolder = siblingFolders[0];
+    const firstRect = firstFolder.getBoundingClientRect();
+    const topBuffer = 20; // pixels above first folder to trigger top insertion
+    if (mouseY < firstRect.top + topBuffer) {
+      console.log('🔝 Dropping at top position');
+      this.updatePreviewForTarget(firstFolder.dataset.folderId, true);
+      return;
+    }
+
+    // Check if we should insert at the very end
+    const lastFolder = siblingFolders[siblingFolders.length - 1];
+    const lastRect = lastFolder.getBoundingClientRect();
+    if (mouseY > lastRect.bottom) {
+      console.log('🔻 Dropping at bottom position');
+      this.updatePreviewForTarget(lastFolder.dataset.folderId, false);
+      return;
+    }
+
+    // Find the folder we're hovering over
+    const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
+    const folderItem = elementBelow?.closest('.folder-item');
+
+    if (folderItem && folderItem.dataset.folderId !== this.draggedFolderId) {
+      const rect = folderItem.getBoundingClientRect();
+      const midPoint = rect.top + rect.height / 2;
+      const insertBefore = mouseY < midPoint;
+
+      this.updatePreviewForTarget(folderItem.dataset.folderId, insertBefore);
+    }
+  }
+
+  updatePreviewForTarget(targetId, insertBefore) {
+    const newPosition = {
+      targetId,
+      insertBefore,
+      parentId: this.getTargetParentId(targetId),
+      index: this.calculateNewIndex(targetId, insertBefore)
+    };
+
+    // Only update if position changed
+    if (!this.currentPreviewPosition ||
+        this.currentPreviewPosition.targetId !== newPosition.targetId ||
+        this.currentPreviewPosition.insertBefore !== newPosition.insertBefore) {
+
+      this.currentPreviewPosition = newPosition;
+      this.renderPreview();
+    }
+  }
+
+  getTargetParentId(targetId) {
+    const folders = this.libraryData.folders || [];
+    const targetFolder = folders.find(f => f.id === targetId);
+    return targetFolder ? targetFolder.parentId : null;
+  }
+
+  calculateNewIndex(targetId, insertBefore) {
+    const folders = this.libraryData.folders || [];
+    const targetFolder = folders.find(f => f.id === targetId);
+    if (!targetFolder) return 0;
+
+    const siblings = folders.filter(f => f.parentId === targetFolder.parentId && f.id !== this.draggedFolderId);
+    const sortedSiblings = siblings.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+    const targetIndex = sortedSiblings.findIndex(f => f.id === targetId);
+
+    return insertBefore ? targetIndex : targetIndex + 1;
+  }
+
+  renderPreview() {
+    if (!this.currentPreviewPosition || !this.draggedFolderId || !this.draggedElement) {
+      return;
+    }
+
+    // Find target element
+    const targetElement = document.querySelector(`[data-folder-id="${this.currentPreviewPosition.targetId}"]`);
+    if (!targetElement) return;
+
+    // Check if we're already in the right position to avoid redundant moves
+    const currentNext = this.draggedElement.nextElementSibling;
+    const currentPrev = this.draggedElement.previousElementSibling;
+
+    if (this.currentPreviewPosition.insertBefore) {
+      if (currentNext === targetElement) return; // Already in correct position
+    } else {
+      if (currentPrev === targetElement) return; // Already in correct position
+    }
+
+    // Calculate where to insert the dragged element
+    const insertPosition = this.currentPreviewPosition.insertBefore ? 'beforebegin' : 'afterend';
+
+    // Move the dragged element to the new position
+    targetElement.insertAdjacentElement(insertPosition, this.draggedElement);
+  }
+
+  applyFinalPosition() {
+    // The current preview position becomes the final position
+    const folders = this.libraryData.folders || [];
+    const draggedFolder = folders.find(f => f.id === this.draggedFolderId);
+
+    if (draggedFolder && this.currentPreviewPosition) {
+      // Apply the changes permanently
+      draggedFolder.parentId = this.currentPreviewPosition.parentId;
+
+      // Update sort orders for all affected folders
+      const newSiblings = folders.filter(f => f.parentId === this.currentPreviewPosition.parentId);
+      newSiblings.forEach(folder => {
+        if (folder.id === this.draggedFolderId) {
+          folder.sortOrder = this.currentPreviewPosition.index;
+        } else if (folder.sortOrder >= this.currentPreviewPosition.index) {
+          folder.sortOrder = folder.sortOrder + 1;
+        }
+      });
+
+      // Clean up old position
+      const oldSiblings = this.originalFolderData.filter(f => f.parentId === this.originalPosition.parentId && f.id !== this.draggedFolderId);
+      oldSiblings.forEach((originalFolder, index) => {
+        const currentFolder = folders.find(f => f.id === originalFolder.id);
+        if (currentFolder && currentFolder.parentId === originalFolder.parentId) {
+          currentFolder.sortOrder = index;
+        }
+      });
+
+      this.saveLibraryData();
+      this.showToast('Folder moved successfully', 'success');
+    }
+
+    this.renderLibrary();
+  }
+
+  restoreOriginalPosition() {
+    // Restore original folder data and re-render
+    this.libraryData.folders = this.originalFolderData;
+    this.renderLibrary();
+  }
+
+  cleanupDragState() {
+    // Remove all drag-related classes
+    document.querySelectorAll('.folder-item').forEach(item => {
+      item.classList.remove('dragging', 'drag-over', 'drop-target', 'drag-placeholder', 'shifting-up', 'shifting-down', 'preview-position', 'repositioning');
+      item.style.visibility = '';
+      item.style.pointerEvents = '';
+      item.style.transition = '';
+    });
+
+    // Remove placeholder
+    if (this.dragPlaceholder) {
+      this.dragPlaceholder.remove();
+      this.dragPlaceholder = null;
+    }
+
+    this.isPreviewActive = false;
+  }
+
 }
 
 // Initialize when DOM is loaded
