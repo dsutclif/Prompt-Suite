@@ -9,6 +9,7 @@ https://dsutclif.github.io/Prompt-Suite/index.html?id=hello-world
 https://dsutclif.github.io/Prompt-Suite/index.html?id=expert-prompt-framework-v1-0
 https://dsutclif.github.io/Prompt-Suite/index.html?id=linkedin-post-creator
 https://dsutclif.github.io/Prompt-Suite/index.html?id=deal-hunter
+https://dsutclif.github.io/Prompt-Suite/index.html?id=vibe-coding-architect
 
 ## Development Links (Unpacked Extension)
 https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=email-writer
@@ -19,3 +20,4 @@ https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=hello-world
 https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=expert-prompt-framework-v1-0
 https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=linkedin-post-creator
 https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=deal-hunter
+https://dsutclif.github.io/Prompt-Suite/index-dev.html?id=vibe-coding-architect
